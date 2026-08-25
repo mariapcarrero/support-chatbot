@@ -1,7 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { resetMemoryStore } from "./memory-store";
-import { loadHistory, resolveConversation, saveMessage } from "./repository";
+import {
+  deleteEscalation,
+  deleteLead,
+  listRecentEscalations,
+  listRecentLeads,
+  loadHistory,
+  resolveConversation,
+  saveEscalation,
+  saveLead,
+  saveMessage,
+} from "./repository";
 
 /**
  * Covers the conversation-memory path.
@@ -76,5 +86,75 @@ describe("conversation persistence", () => {
 
   it("ignores writes for a null conversation instead of throwing", async () => {
     await expect(saveMessage(null, "user", "dropped")).resolves.toBeUndefined();
+  });
+});
+
+describe("admin inbox lists", () => {
+  beforeEach(resetMemoryStore);
+
+  it("lists leads newest first", async () => {
+    const id = await resolveConversation("session-a", null);
+    await saveLead(id, {
+      name: "Ada",
+      email: "ada@acme.io",
+      company: "Acme",
+      interest: "strategy call",
+      sourceTool: "book_strategy_call",
+    });
+    await saveLead(id, {
+      name: "Bea",
+      email: "bea@acme.io",
+      interest: "nurture",
+      sourceTool: "capture_lead",
+    });
+
+    const rows = await listRecentLeads();
+    expect(rows).toHaveLength(2);
+    expect(rows[0].email).toBe("bea@acme.io");
+    expect(rows[0].sourceTool).toBe("capture_lead");
+    expect(rows[1].sourceTool).toBe("book_strategy_call");
+  });
+
+  it("lists escalations with open status and reference", async () => {
+    const id = await resolveConversation("session-a", null);
+    await saveEscalation(id, {
+      reference: "CAD-ABCDEF",
+      category: "account_specific",
+      reason: "Portal access (needs_account) for dana@acme.io",
+      contactEmail: "dana@acme.io",
+    });
+
+    const rows = await listRecentEscalations();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      reference: "CAD-ABCDEF",
+      category: "account_specific",
+      contactEmail: "dana@acme.io",
+      status: "open",
+    });
+    expect(rows[0].id).toBeTruthy();
+  });
+
+  it("deletes a lead and an escalation by id", async () => {
+    const conversationId = await resolveConversation("session-a", null);
+    await saveLead(conversationId, {
+      name: "Ada",
+      email: "ada@acme.io",
+      interest: "strategy call",
+      sourceTool: "book_strategy_call",
+    });
+    await saveEscalation(conversationId, {
+      reference: "CAD-DELETE",
+      category: "other",
+      reason: "cleanup test",
+      contactEmail: "ada@acme.io",
+    });
+
+    const [lead] = await listRecentLeads();
+    const [escalation] = await listRecentEscalations();
+    expect(await deleteLead(lead.id)).toBe(true);
+    expect(await deleteEscalation(escalation.id)).toBe(true);
+    expect(await listRecentLeads()).toHaveLength(0);
+    expect(await listRecentEscalations()).toHaveLength(0);
   });
 });

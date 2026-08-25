@@ -1,8 +1,8 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 
 import { MAX_HISTORY_MESSAGES } from "@/lib/ai/config";
 
-import { db, type Database } from "./client";
+import { connectionSource, db, isDbEnabled, type Database } from "./client";
 import * as memory from "./memory-store";
 import {
   conversations,
@@ -10,8 +10,13 @@ import {
   leads,
   maturityAssessments,
   messages,
+  type Escalation,
+  type Lead,
   type Message,
 } from "./schema";
+
+/** Cap for the demo ops inbox — enough to walk through, not a full archive. */
+const ADMIN_LIST_LIMIT = 100;
 
 /**
  * All database access goes through here.
@@ -140,7 +145,12 @@ export async function saveLead(conversationId: string | null, lead: LeadInput): 
   if (!conversationId) return;
 
   if (!db) {
-    memory.capturedLeads.push({ conversationId, ...lead, createdAt: new Date() });
+    memory.getCapturedLeads().push({
+      id: crypto.randomUUID(),
+      conversationId,
+      ...lead,
+      createdAt: new Date(),
+    });
     return;
   }
 
@@ -178,7 +188,13 @@ export async function saveEscalation(
   if (!conversationId) return;
 
   if (!db) {
-    memory.capturedEscalations.push({ conversationId, ...input, createdAt: new Date() });
+    memory.getCapturedEscalations().push({
+      id: crypto.randomUUID(),
+      conversationId,
+      ...input,
+      status: "open",
+      createdAt: new Date(),
+    });
     memory.markEscalated(conversationId);
     return;
   }
@@ -205,7 +221,7 @@ export async function saveMaturityAssessment(
   if (!conversationId) return;
 
   if (!db) {
-    memory.capturedAssessments.push({ conversationId, ...input, createdAt: new Date() });
+    memory.getCapturedAssessments().push({ conversationId, ...input, createdAt: new Date() });
     return;
   }
 
@@ -217,4 +233,189 @@ export async function saveMaturityAssessment(
       tier: input.tier,
     }),
   );
+}
+
+/** Shape the admin inbox renders — same fields whether Postgres or memory is active. */
+export type AdminLead = Pick<
+  Lead,
+  "id" | "name" | "email" | "company" | "interest" | "sourceTool" | "createdAt" | "conversationId"
+>;
+
+export type AdminEscalation = Pick<
+  Escalation,
+  | "id"
+  | "reference"
+  | "category"
+  | "reason"
+  | "contactEmail"
+  | "status"
+  | "createdAt"
+  | "conversationId"
+>;
+
+export type AdminInboxSource = "postgres" | "memory";
+
+export async function listRecentLeads(limit = ADMIN_LIST_LIMIT): Promise<AdminLead[]> {
+  if (!db) {
+    // Index tie-break: Date resolution is ms, and two tool writes in one turn often share a
+    // timestamp. Later inserts should still surface first in the demo inbox.
+    return [...memory.getCapturedLeads()]
+      .map((row, index) => ({ row, index }))
+      .sort(
+        (a, b) =>
+          b.row.createdAt.getTime() - a.row.createdAt.getTime() || b.index - a.index,
+      )
+      .slice(0, limit)
+      .map(({ row }) => ({
+        id: row.id,
+        conversationId: row.conversationId,
+        name: row.name,
+        email: row.email,
+        company: row.company ?? null,
+        interest: row.interest,
+        sourceTool: row.sourceTool,
+        createdAt: row.createdAt,
+      }));
+  }
+
+  try {
+    return await db
+      .select({
+        id: leads.id,
+        conversationId: leads.conversationId,
+        name: leads.name,
+        email: leads.email,
+        company: leads.company,
+        interest: leads.interest,
+        sourceTool: leads.sourceTool,
+        createdAt: leads.createdAt,
+      })
+      .from(leads)
+      .orderBy(desc(leads.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error("[db] listRecentLeads failed:", error);
+    return [];
+  }
+}
+
+export async function listRecentEscalations(
+  limit = ADMIN_LIST_LIMIT,
+): Promise<AdminEscalation[]> {
+  if (!db) {
+    return [...memory.getCapturedEscalations()]
+      .map((row, index) => ({ row, index }))
+      .sort(
+        (a, b) =>
+          b.row.createdAt.getTime() - a.row.createdAt.getTime() || b.index - a.index,
+      )
+      .slice(0, limit)
+      .map(({ row }) => ({
+        id: row.id,
+        conversationId: row.conversationId,
+        reference: row.reference,
+        category: row.category,
+        reason: row.reason,
+        contactEmail: row.contactEmail ?? null,
+        status: row.status,
+        createdAt: row.createdAt,
+      }));
+  }
+
+  try {
+    return await db
+      .select({
+        id: escalations.id,
+        conversationId: escalations.conversationId,
+        reference: escalations.reference,
+        category: escalations.category,
+        reason: escalations.reason,
+        contactEmail: escalations.contactEmail,
+        status: escalations.status,
+        createdAt: escalations.createdAt,
+      })
+      .from(escalations)
+      .orderBy(desc(escalations.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error("[db] listRecentEscalations failed:", error);
+    return [];
+  }
+}
+
+export async function deleteLead(id: string): Promise<boolean> {
+  if (!db) {
+    const leads = memory.getCapturedLeads();
+    const index = leads.findIndex((row) => row.id === id);
+    if (index < 0) return false;
+    leads.splice(index, 1);
+    return true;
+  }
+
+  const result = await safeWrite("deleteLead", async (database) => {
+    const deleted = await database.delete(leads).where(eq(leads.id, id)).returning({ id: leads.id });
+    return deleted.length > 0;
+  });
+  return result ?? false;
+}
+
+export async function deleteEscalation(id: string): Promise<boolean> {
+  if (!db) {
+    const rows = memory.getCapturedEscalations();
+    const index = rows.findIndex((row) => row.id === id);
+    if (index < 0) return false;
+    rows.splice(index, 1);
+    return true;
+  }
+
+  const result = await safeWrite("deleteEscalation", async (database) => {
+    const deleted = await database
+      .delete(escalations)
+      .where(eq(escalations.id, id))
+      .returning({ id: escalations.id });
+    return deleted.length > 0;
+  });
+  return result ?? false;
+}
+
+export async function clearAllLeads(): Promise<number> {
+  if (!db) {
+    const leads = memory.getCapturedLeads();
+    const count = leads.length;
+    leads.length = 0;
+    return count;
+  }
+
+  const result = await safeWrite("clearAllLeads", async (database) => {
+    const deleted = await database.delete(leads).returning({ id: leads.id });
+    return deleted.length;
+  });
+  return result ?? 0;
+}
+
+export async function clearAllEscalations(): Promise<number> {
+  if (!db) {
+    const rows = memory.getCapturedEscalations();
+    const count = rows.length;
+    rows.length = 0;
+    return count;
+  }
+
+  const result = await safeWrite("clearAllEscalations", async (database) => {
+    const deleted = await database.delete(escalations).returning({ id: escalations.id });
+    return deleted.length;
+  });
+  return result ?? 0;
+}
+
+/** Which backend the admin page is reading from — useful in the demo banner. */
+export function adminInboxSource(): {
+  kind: AdminInboxSource;
+  /** Env var name when kind is postgres (e.g. NEON_DATABASE_URL). */
+  connectionVar: string | null;
+} {
+  return {
+    kind: isDbEnabled ? "postgres" : "memory",
+    connectionVar: connectionSource,
+  };
 }

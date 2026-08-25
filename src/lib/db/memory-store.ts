@@ -25,6 +25,12 @@ import type { Message } from "./schema";
  * which is why `/api/health` reports `databaseConfigured` and the deploy checklist checks it.
  * This is for local development and tests, where standing up Postgres to ask the bot two
  * questions is friction with no payoff.
+ *
+ * ## Next.js module duplication
+ *
+ * Turbopack / webpack can evaluate this module once for `/api/chat` and again for `/admin`.
+ * Module-level `Map`/`[]` would then be two stores — chat files a CAD reference, admin stays
+ * empty. State lives on `globalThis` so both bundles share one store in a single Node process.
  */
 
 interface StoredConversation {
@@ -37,14 +43,74 @@ interface StoredConversation {
 /** Bound on retained conversations; oldest are evicted first (Map preserves insert order). */
 const MAX_CONVERSATIONS = 200;
 
-const conversations = new Map<string, StoredConversation>();
+export interface CapturedLead {
+  id: string;
+  conversationId: string;
+  name: string;
+  email: string;
+  company?: string | null;
+  industry?: string | null;
+  companySize?: string | null;
+  interest: string;
+  sourceTool: "book_strategy_call" | "capture_lead";
+  createdAt: Date;
+}
 
-/** Captured records, kept so tool flows behave identically to the database path. */
-export const capturedLeads: unknown[] = [];
-export const capturedEscalations: unknown[] = [];
-export const capturedAssessments: unknown[] = [];
+export interface CapturedEscalation {
+  id: string;
+  conversationId: string;
+  reference: string;
+  category:
+    | "contractual"
+    | "account_specific"
+    | "commercial"
+    | "complaint"
+    | "unanswerable"
+    | "other";
+  reason: string;
+  contactEmail?: string | null;
+  status: "open" | "resolved";
+  createdAt: Date;
+}
+
+interface MemoryRoot {
+  conversations: Map<string, StoredConversation>;
+  capturedLeads: CapturedLead[];
+  capturedEscalations: CapturedEscalation[];
+  capturedAssessments: unknown[];
+}
+
+const globalForMemory = globalThis as typeof globalThis & {
+  __cadreMemoryStore?: MemoryRoot;
+};
+
+function root(): MemoryRoot {
+  if (!globalForMemory.__cadreMemoryStore) {
+    globalForMemory.__cadreMemoryStore = {
+      conversations: new Map(),
+      capturedLeads: [],
+      capturedEscalations: [],
+      capturedAssessments: [],
+    };
+  }
+  return globalForMemory.__cadreMemoryStore;
+}
+
+/** Mutable buckets — always read via these so Next's duplicate module graphs stay in sync. */
+export function getCapturedLeads(): CapturedLead[] {
+  return root().capturedLeads;
+}
+
+export function getCapturedEscalations(): CapturedEscalation[] {
+  return root().capturedEscalations;
+}
+
+export function getCapturedAssessments(): unknown[] {
+  return root().capturedAssessments;
+}
 
 export function createConversation(sessionId: string): string {
+  const conversations = root().conversations;
   if (conversations.size >= MAX_CONVERSATIONS) {
     const oldest = conversations.keys().next();
     if (!oldest.done) conversations.delete(oldest.value);
@@ -60,12 +126,12 @@ export function createConversation(sessionId: string): string {
  * a conversation id belonging to another session must not resolve.
  */
 export function findConversation(id: string, sessionId: string): StoredConversation | undefined {
-  const found = conversations.get(id);
+  const found = root().conversations.get(id);
   return found && found.sessionId === sessionId ? found : undefined;
 }
 
 export function getMessages(conversationId: string): Message[] {
-  const found = conversations.get(conversationId);
+  const found = root().conversations.get(conversationId);
   if (!found) return [];
   return found.messages.slice(-MAX_HISTORY_MESSAGES);
 }
@@ -76,7 +142,7 @@ export function addMessage(
   content: unknown,
   usage?: unknown,
 ): void {
-  const found = conversations.get(conversationId);
+  const found = root().conversations.get(conversationId);
   if (!found) return;
 
   found.messages.push({
@@ -90,14 +156,15 @@ export function addMessage(
 }
 
 export function markEscalated(conversationId: string): void {
-  const found = conversations.get(conversationId);
+  const found = root().conversations.get(conversationId);
   if (found) found.status = "escalated";
 }
 
 /** Test seam. */
 export function resetMemoryStore(): void {
-  conversations.clear();
-  capturedLeads.length = 0;
-  capturedEscalations.length = 0;
-  capturedAssessments.length = 0;
+  const store = root();
+  store.conversations.clear();
+  store.capturedLeads.length = 0;
+  store.capturedEscalations.length = 0;
+  store.capturedAssessments.length = 0;
 }
