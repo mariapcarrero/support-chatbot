@@ -20,10 +20,13 @@ const rating = z.literal([1, 2, 3, 4, 5]);
 export const scoreAiMaturity = defineTool({
   name: "score_ai_maturity",
   description:
-    "Compute an AI Maturity Index score from the user's self-ratings. Explain the five " +
-    "dimensions and collect a 1-5 rating for each one before calling this. You must never " +
+    "Run a quick five-question AI maturity self-check from the user's own 1-5 ratings. Explain " +
+    "the five dimensions and collect a rating for each before calling this. You must never " +
     "calculate, estimate, or predict the score or tier yourself — this tool is the only source " +
-    "of a score, and the number it returns is the number you report.",
+    "of a score, and the number it returns is the number you report. " +
+    "This is NOT Cadre's AI Maturity Index, which grades eight pillars and comes from a " +
+    "strategist: it is an indicative self-assessment, and you must describe it as one rather " +
+    "than letting the user believe they have received Cadre's assessment.",
   schema: z.object({
     dataReadiness: rating.describe(
       "1 = data scattered across inboxes and shared drives, 5 = governed, documented, queryable",

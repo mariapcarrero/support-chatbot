@@ -5,11 +5,46 @@ export const maturityIndex: KnowledgeDoc = {
   title: "The Cadre AI Maturity Index",
   tags: ["maturity index", "assessment", "score", "benchmark", "readiness"],
   body: `
-The AI Maturity Index is Cadre AI's diagnostic. It scores an organization across five dimensions
-and produces a tier, so you have a baseline to measure progress against instead of a vague sense
-that you are "behind on AI".
+The AI Maturity Index is Cadre AI's diagnostic. It scores your company across Cadre's
+**eight-pillar framework for AI transformation**: you get a grade in each area with clear
+explanations, plus actionable insights on how to improve and move further along in your AI
+journey. That gives you a baseline to measure progress against instead of a vague sense that you
+are "behind on AI".
 
-### The five dimensions
+### The eight pillars Cadre grades against
+1. **Build your dedicated AI team** — an accountable leader supported by product, strategy,
+   research and engineering people working across departments.
+2. **Deploy your AI Command Center** — choosing one AI platform company-wide, rather than
+   letting employees put company data through personal accounts.
+3. **Create an AI-first culture shift** — clear policies, leadership communication that addresses
+   people's concerns, and real change management.
+4. **Connect and enable your tech stack** — API access so agents can move data between fragmented
+   systems, plus auditing existing tools for AI features you already pay for.
+5. **AI-healthy data assessment** — knowing where data originates, changes, and lives, because
+   garbage in is garbage out.
+6. **Build your framework for AI agent readiness** — mapping high-impact agents, documenting the
+   workflows they touch, and setting up monitoring.
+7. **Departmental AI deep dives** — assessing each team's people, process and technology to find
+   what is worth automating.
+8. **Find your 3-year AI vision** — the dream state as a fully AI-enabled organization, and a
+   benchmark to measure progress against.
+
+**Getting the real Index is a conversation with Cadre, not something this assistant can produce.**
+Point anyone who wants it to the contact route in the contact-and-booking topic.
+
+### The quick self-check in this chat
+Separately, this assistant can run a **short self-assessment** — five questions, self-rated, giving
+an indicative score and tier. It is a useful orientation exercise and a way to find your weakest
+area in two minutes.
+
+**It is not Cadre's AI Maturity Index, and you must never present it as one.** The five dimensions
+below and the tier bands are this assistant's own simplified model, not Cadre's published
+framework, and the real Index grades the eight pillars above. Say so plainly when offering it:
+something like "I can run a quick five-question self-check to give you a rough picture — the full
+Index from Cadre goes deeper and covers eight areas." Never say the user has "received their AI
+Maturity Index" or quote the self-check score as Cadre's assessment.
+
+### The five self-check dimensions
 Each is scored 1-5.
 
 1. **Data Readiness** — Is the data that matters accessible, reasonably clean, and permitted to be
@@ -23,8 +58,10 @@ Each is scored 1-5.
 5. **Governance & Risk** — Are there rules, and are they followed? 1 = no policy; 5 = clear policy,
    defined approval paths, monitoring, and incident handling.
 
-### Scoring
-The overall score is the average of the five dimension scores, on a 1.0-5.0 scale. Tiers:
+### Self-check scoring
+The overall score is the average of the five dimension scores, on a 1.0-5.0 scale. These bands are
+this assistant's own, for the self-check only — Cadre does not publish a numeric scale or tier
+names, so never attribute them to Cadre:
 
 | Overall | Tier | What it means |
 | --- | --- | --- |
@@ -38,16 +75,19 @@ The lowest-scoring dimension is usually the constraint, and it is where we recom
 a company at 5 on tooling and 1 on data readiness does not have a tooling problem.
 
 ### How to get scored
-Two options, and you should mention **both** whenever you explain the Index — the in-chat version
-is the easy entry point, and the strategist-led version is the one that produces a real report:
-- **In this chat.** Use the \`score_ai_maturity\` tool. Ask the user to self-rate each of the five
-  dimensions 1-5, using the anchors above to explain what each end of the scale means. Collect all
-  five, then call the tool. The tool computes the score — never compute or estimate it yourself.
-- **Full assessment with a strategist**, which includes stakeholder interviews and a review of
-  actual systems rather than self-reporting. This is more accurate and is the version that
-  produces a written report. Book a strategy call for this.
+Mention **both** whenever someone asks about the Index, and keep them clearly distinct:
 
-Be clear about the difference: the in-chat version is a self-assessed snapshot, useful for
-orientation. It is not the full benchmarked assessment.
+- **The AI Maturity Index itself** — graded against the eight pillars, with explanations and
+  actionable insights. This comes from Cadre, and the way to get it is the contact route in the
+  contact-and-booking topic. This is the answer for anyone asking "how do I get scored?".
+- **The quick self-check here** — use the \`score_ai_maturity\` tool. Ask the user to self-rate
+  each of the five dimensions 1-5, using the anchors above to explain the ends of the scale.
+  Collect all five, then call the tool. The tool computes the score; never compute, estimate, or
+  predict it yourself, however obvious the arithmetic looks.
+
+A good answer offers the self-check as the immediate thing you can do together, and the real Index
+as the next step — without blurring them. Someone who came here asking about the AI Maturity Index
+and leaves thinking a five-question chat gave them one has been misled, even if every number in it
+was correct.
 `.trim(),
 };

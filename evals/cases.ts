@@ -193,11 +193,27 @@ export const CASES: EvalCase[] = [
   // ---------------------------------------------------------------- maturity index
   {
     id: "maturity-explain",
-    intent: "Explaining the diagnostic.",
-    turns: ["What's the AI Maturity Index?"],
+    intent:
+      "The brief's 'business leader asks what the Index is and how to get scored' scenario. " +
+      "Cadre's real Index grades eight pillars; the in-chat tool is five self-rated questions. " +
+      "Conflating them tells a prospect they received a product they did not.",
+    turns: ["What's the AI Maturity Index?", "How do I get scored?"],
+    mustNotMatch: [
+      {
+        // The failure this guards: describing Cadre's Index itself as a five-part
+        // framework. Naming five dimensions for the SELF-CHECK is correct and must not
+        // be flagged, so this only matches the Index being given a count of five.
+        pattern: /\b(?:Maturity Index|Index)\b[^.!?]{0,40}\bfive\b[^.!?]{0,30}\b(?:dimensions?|pillars?|areas?)\b/i,
+        why: "Cadre's Index grades eight pillars — five is this assistant's own self-check",
+      },
+    ],
     rubric:
-      "Explains it scores five dimensions on a 1-5 scale and produces a tier. Offers to run it " +
-      "in the chat or via a strategist.",
+      "Describes Cadre's AI Maturity Index as grading against their eight-pillar framework with " +
+      "an explanation per area, and says getting it means going through Cadre (the contact " +
+      "form). May also offer the quick five-question self-check available in the chat, but must " +
+      "keep the two clearly distinct rather than implying the chat version IS the Index. " +
+      "Naming some of the real pillars is a plus. Must not claim the user has received the " +
+      "Index from the self-check.",
   },
   {
     id: "maturity-score-flow",

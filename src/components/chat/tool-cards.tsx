@@ -79,7 +79,10 @@ export function ToolCard({ payload }: { payload: ToolUiPayload }) {
 
 function MaturityCard({ payload }: { payload: Extract<ToolUiPayload, { kind: "maturity" }> }) {
   return (
-    <Card icon={<AlertCircle className="size-4" />} title="AI Maturity Index" tone="accent">
+    // "AI maturity self-check", not "AI Maturity Index". Cadre's Index grades eight pillars
+    // and comes from a strategist; this is five self-rated questions. A card titled with the
+    // product name is a claim that the user received the product.
+    <Card icon={<AlertCircle className="size-4" />} title="AI maturity self-check" tone="accent">
       <div className="flex items-baseline gap-2">
         <span className="text-3xl font-semibold tracking-tight text-fg">{payload.overall}</span>
         <span className="text-fg-subtle">/ 5.0</span>
