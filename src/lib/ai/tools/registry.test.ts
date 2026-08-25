@@ -136,7 +136,7 @@ describe("executeTool", () => {
   });
 
   it("does not file a portal request without an email, and says so", async () => {
-    const result = await executeTool("get_portal_access_help", { issue: "cannot_sign_in" }, ctx);
+    const result = await executeTool("get_portal_access_help", { issue: "cannot_access" }, ctx);
     expect(result.isError).toBe(false);
     expect(result.content).toContain("nothing has been filed");
     // Must not imply an email was sent — the tool cannot send one.
@@ -147,7 +147,7 @@ describe("executeTool", () => {
   it("files a portal request when an email is supplied", async () => {
     const result = await executeTool(
       "get_portal_access_help",
-      { issue: "no_link_received", email: "ada@acme.com" },
+      { issue: "cannot_access", email: "ada@acme.com" },
       ctx,
     );
     expect(result.content).toMatch(/CAD-[0-9A-F]{6}/);

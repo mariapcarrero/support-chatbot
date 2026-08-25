@@ -60,7 +60,7 @@ export const escalateToHuman = defineTool({
     });
 
     const followUp = input.contactEmail
-      ? `The team will reply to ${input.contactEmail} within one business day.`
+      ? `The team will reply to ${input.contactEmail}. Do not promise a timeframe — none is published.`
       : `Ask for their email so the team can reply, or point them to ${CONTACT_EMAIL}.`;
 
     return {

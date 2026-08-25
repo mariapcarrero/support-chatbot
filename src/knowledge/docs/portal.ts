@@ -6,43 +6,49 @@ export const portal: KnowledgeDoc = {
   title: "The Cadre portal (for existing clients)",
   tags: ["portal", "login", "dashboard", "access", "account", "client"],
   body: `
-The Cadre portal is where active clients track the AI tools, agents, training, and results from
-their engagement.
+Cadre gives clients a **centralized portal to track tools, agents, training, and results** — in
+Cadre's words, to "stay aligned, stay accountable, and scale what works". It is where the output
+of an engagement stays visible after the work ships.
 
-**There is no public portal web address, and you must never give one out.** Access is provisioned
-per client during onboarding. Anyone asking how to get to it should be pointed at ${CONTACT_URL}.
+That paragraph is the whole of what is publicly known about the portal, and this topic is
+deliberately short because of it.
 
-### What is in it
-- **Tools & agents** — every workflow and agent we have shipped for you, with current status.
-- **Results** — usage volume, time saved, and the success metrics agreed at the start of each
-  pilot, measured against the baseline.
-- **Roadmap** — what is in flight and what is queued, by department.
-- **Documents** — assessment reports, opportunity maps, and handover documentation.
+### What you must not say
+Cadre publishes no portal web address, no sign-in method, and no support response time. So you do
+not know, and must never state or imply:
 
-### Access
-- Accounts are provisioned by your Cadre engagement lead during onboarding. There is no public
-  self-serve sign-up.
-- Sign-in is by email magic link, or SSO if your organization has it configured. There is no
-  password to reset.
-- Access is scoped per organization. Users see only their own organization's workspace.
+- **A URL.** There is no public portal address. Do not offer one, do not guess a subdomain, and do
+  not construct one from the company name.
+- **How sign-in works.** Not magic links, not SSO, not passwords, not "there is no password to
+  reset". You do not know which of these is true.
+- **How accounts are created**, who provisions them, or whether there is self-serve signup.
+- **How long support takes.** No "within one business day", no "24 hours", no "shortly". Any
+  timeframe would be invented, and a response-time promise is exactly the kind of thing a client
+  will hold Cadre to.
+- **Whether a specific person has access**, or anything about their account.
 
-### Support response times
-Portal access requests and support escalations are followed up **within one business day**.
-This is the only response commitment you may state; do not promise anything faster or more
-specific.
+Guessing here is worse than in most topics: someone asking about portal access is usually an
+existing client with a problem, and sending them to a URL that does not exist or telling them to
+wait a day for a reply that was never promised makes their day worse, not better.
 
-### Common problems and the correct answer
-- **"I can't log in" / "I didn't get the link"** — have them confirm they are using their work
-  email exactly as it was provisioned, and check spam. A fresh link can be re-sent.
-- **"I need an account"** — new users are added by their organization's engagement lead or an
-  existing admin on their account. Route this to their engagement lead, or to ${CONTACT_URL}.
-- **"I forgot my password"** — there is no password; sign-in is magic link or SSO.
+**If the user describes their own setup, you may repeat it back without endorsing it.** Someone
+saying "I never got the sign-in link" knows their situation better than you do. Pass that detail
+along in the request and reflect it naturally — do not correct them, and do not treat it as
+confirmation of how the portal works or generalize from it to the next person who asks. What you
+must not do is introduce a mechanism they did not mention.
+
+### What to do instead
+Use the \`get_portal_access_help\` tool. It records the request so the team can pick it up, and
+gives you the correct thing to say. If they share their work email it files a request with a
+reference; if not, ask for one or point them to ${CONTACT_URL}.
+
+Be straightforward about the limits rather than apologetic: you cannot see accounts or reset
+access, but you can get the request in front of someone who can. That is a genuinely useful
+outcome, so say it plainly.
 
 ### Boundary — important
 This assistant cannot authenticate anyone, look up an account, see engagement data, read results,
-or reset access. Never claim to have checked an account or to have sent anything. Use the
-\`get_portal_access_help\` tool, which explains the process and, if the user provides their work
-email, records a request for the support team to follow up. Anything that requires actually seeing
-the user's data must be escalated to a human.
+or reset access. Never claim to have checked an account, sent anything, or confirmed that access
+exists. Anything that requires actually seeing the user's data goes to a human.
 `.trim(),
 };

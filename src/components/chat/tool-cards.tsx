@@ -67,10 +67,13 @@ export function ToolCard({ payload }: { payload: ToolUiPayload }) {
 
     case "portal":
       return (
+        // No timeframe. "Within one business day" was invented for this build, and a
+        // response-time promise printed in a confident card is exactly what a client would
+        // later hold Cadre to.
         <Card icon={<KeyRound className="size-4" />} title="Portal request filed">
           <p className="text-fg-muted">
-            Support will follow up with{" "}
-            <span className="text-fg font-medium">{payload.email}</span> within one business day.
+            Sent to the support team, who will follow up with{" "}
+            <span className="text-fg font-medium">{payload.email}</span>.
           </p>
         </Card>
       );

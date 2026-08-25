@@ -10,37 +10,37 @@ import { makeReference } from "./escalate-to-human";
 export const getPortalAccessHelp = defineTool({
   name: "get_portal_access_help",
   description:
-    "Help an existing client with accessing the Cadre portal. Use for sign-in problems, missing " +
-    "magic links, or requests for an account. This explains the process and, if they give their " +
-    "work email, files a request for the support team. It cannot authenticate anyone, look up " +
-    "an account, or send an email — never claim it did.",
+    "File a request for an existing client who cannot get into the Cadre portal, or who needs " +
+    "access. If they give their work email this records a request with a reference for the " +
+    "support team. It cannot authenticate anyone, look up an account, send anything, or tell " +
+    "them how sign-in works — Cadre publishes none of that. Never claim it did.",
   schema: z.object({
     issue: z
-      .enum(["cannot_sign_in", "no_link_received", "needs_account", "general"])
-      .describe("What kind of portal problem they have"),
+      .enum(["cannot_access", "needs_account", "general"])
+      .describe(
+        "cannot_access: they have an account but cannot get in. needs_account: they need " +
+          "access set up. general: anything else about the portal.",
+      ),
     email: emailSchema
       .optional()
       .describe("Their work email, only if they volunteered it — do not invent one"),
   }),
   async run(input, ctx): Promise<ToolResult> {
+    // Every string here is about what happens next, never about how the portal works.
+    // Cadre publishes no sign-in method, no URL, and no response time, so guidance that
+    // explained any of those would be invented — see the `portal` knowledge document.
     const guidance: Record<typeof input.issue, string> = {
-      cannot_sign_in:
-        `Portal sign-in is by email magic link or SSO — there is no password to reset. Have ` +
-        `them confirm they are using the work email their engagement lead provisioned, exactly ` +
-        `as provisioned, and check spam for the link. Do not give out a portal web address: ` +
-        `there is no public portal URL to send them to.`,
-      no_link_received:
-        `Portal sign-in is by email magic link or SSO — there is no password. Magic links ` +
-        `most often land in spam or go to a different address than the one provisioned. Have ` +
-        `them check spam and confirm the exact address. Do not give out a portal web address: ` +
-        `there is no public portal URL to send them to.`,
+      cannot_access:
+        `You cannot see accounts or reset access, and you do not know how portal sign-in ` +
+        `works, so do not speculate about passwords, links, or SSO, and do not give out a ` +
+        `portal address. Say plainly that you are putting this in front of the team who can ` +
+        `check the account.`,
       needs_account:
-        `New portal accounts are created by their organization's Cadre engagement lead or by ` +
-        `an existing admin on their account. There is no self-serve sign-up.`,
+        `You do not know how access is provisioned, so do not describe the process. Say that ` +
+        `the request goes to the team who set access up.`,
       general:
-        `Portal access is by magic link or SSO, provisioned by their engagement lead — there is ` +
-        `no public portal URL and no self-serve sign-up. Anyone who needs access can also reach ` +
-        `the team at ${CONTACT_URL}.`,
+        `Do not state a portal address, a sign-in method, or a response time — none are ` +
+        `published. Anyone who needs access can also reach the team at ${CONTACT_URL}.`,
     };
 
     // Only file a follow-up when we have somewhere to send it. Without an email there is
@@ -65,11 +65,10 @@ export const getPortalAccessHelp = defineTool({
     return {
       content:
         `${guidance[input.issue]} A support request has been filed as ${reference} for ` +
-        `${input.email}; the team will follow up within one business day. ` +
-        `Relay the guidance above to the user — including explicitly that sign-in is by magic ` +
-        `link or SSO and there is no password — then give them the reference ${reference}. ` +
-        `Do not compress this into "I've logged it". State that the request is filed, not that ` +
-        `a link has been sent, because no link has been sent.`,
+        `${input.email}. Give them the reference ${reference} and say the team will follow ` +
+        `up — but do NOT attach a timeframe to that, because Cadre publishes none. ` +
+        `Do not compress this into "I've logged it": state that the request is filed and that ` +
+        `nothing has been sent to them, because nothing has.`,
       ui: { kind: "portal" as const, email: input.email },
     };
   },
