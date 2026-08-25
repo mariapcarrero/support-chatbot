@@ -90,4 +90,8 @@ as the next step — without blurring them. Someone who came here asking about t
 and leaves thinking a five-question chat gave them one has been misled, even if every number in it
 was correct.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/strategy", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+  ],
 };

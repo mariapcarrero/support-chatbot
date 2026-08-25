@@ -110,15 +110,24 @@ system. Nothing in the code distinguished a verified fact from a fluent inventio
   documents — so changing it would have made the bot contradict itself depending on whether a
   tool fired.
 
-### What is still not solved
+### Making it structural
 
-There is no *structural* guarantee. The `KnowledgeDoc` contract has no `sources` field, so a
-future document can still assert something unverified and nothing will fail. The designed fix is
-a required `sources: {url, retrievedAt}[]`, enforced in `knowledge.test.ts`, plus a script that
-re-fetches each source and reports drift. That turns provenance from a habit into a build error.
-It is specified and not built — the honest reason is that reconciling the existing content used
-the time available, and shipping true content mattered more than shipping the mechanism that
-keeps it true.
+Reconciling the content fixes today; it does not stop the next document being written from
+imagination. So `KnowledgeDoc` now requires `sources: {url, checkedOn}[]`, and
+`knowledge.test.ts` fails the build when a document has none, when a URL is not an https
+cadreai.com address, or when a date is not real.
+
+The field is "pages this was **checked against**", not "pages this was taken from". Several
+documents exist mainly to record that something is *not* published — no pricing, no portal URL,
+no statement about deliverable ownership — and an absence has no paragraph to cite. What it has
+is a set of pages someone looked at, which is the thing worth recording.
+
+It does not prove the body matches the page; only a human or a fetch can do that. What it removes
+is the option of never having looked, which is exactly how the first version happened.
+
+**Still not built:** a `knowledge:audit` script that re-fetches each source and reports drift.
+`checkedOn` is the hook for it — the dates are there so staleness is visible — but the site
+changing under a correct document remains something a person has to notice.
 
 ---
 

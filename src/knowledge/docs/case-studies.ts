@@ -70,4 +70,7 @@ you are talking to** — "this could save you 8,000 hours" is an invented claim 
 is real. Say what was done for a comparable organization, then offer a call to discuss their
 situation. If asked for detail beyond what is written here, connect them with a strategist.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/case-studies", checkedOn: "2026-08-25" },
+  ],
 };

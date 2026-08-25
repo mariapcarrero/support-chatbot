@@ -57,4 +57,9 @@ narrow this to B2B or to an employee-count range, neither of which is published.
 
 Saying so early is better than selling an engagement that will not work.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/industries", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/industries/hospitality", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/industries/mortgage-lending", checkedOn: "2026-08-25" },
+  ],
 };

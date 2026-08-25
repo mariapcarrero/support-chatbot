@@ -74,4 +74,8 @@ report, carries a particular insurance policy, or will sign a given agreement, a
 the team can send you the SOC 2" asserts that it exists. Escalate in neutral terms — "so someone
 who can speak to that gets back to you" — and let the human confirm what is available.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/strategy", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/terms-of-service", checkedOn: "2026-08-25" },
+  ],
 };

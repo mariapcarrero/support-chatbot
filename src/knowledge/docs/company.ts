@@ -39,4 +39,9 @@ headcount.
   company on one vendor — see the security-and-llm-selection topic.
 - We measure. Engagements define baseline metrics up front and report against them.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/about", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/terms-of-service", checkedOn: "2026-08-25" },
+  ],
 };

@@ -56,4 +56,9 @@ multiplier, a percentage, or a number of weeks to it.
 
 What happens when an engagement ends is covered in the after-the-engagement topic.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/strategy", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/ai-transformation-intensive", checkedOn: "2026-08-25" },
+  ],
 };

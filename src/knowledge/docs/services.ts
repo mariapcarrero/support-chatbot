@@ -39,8 +39,17 @@ support. Every agent we ship comes with defined guardrails, an escalation path t
 evaluation suite so quality is measured rather than assumed.
 
 ### Technology partners
-We work across OpenAI, Anthropic (Claude), Google, Microsoft, AWS, Salesforce, and Snowflake, and
-we use OpenRouter for broad model access. We are deliberately not a single-vendor shop — see the
-security-and-llm-selection topic for how we choose.
+Cadre is an **Anthropic and OpenAI partner**, and was one of the first official OpenAI service
+partners. Work spans multiple model providers — OpenAI, Anthropic (Claude), Google Gemini, Meta,
+Mistral, Qwen, Kimi and DeepSeek among them — alongside infrastructure partners including
+Snowflake, Salesforce, Microsoft and AWS. Deliberately not a single-vendor shop; see the
+security-and-llm-selection topic for how a model gets chosen.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/strategy", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/leadership-facilitation", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/ai-engineering", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/agents", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/ai-transformation-intensive", checkedOn: "2026-08-25" },
+  ],
 };

@@ -65,4 +65,8 @@ The office is in San Diego (see the contact-and-booking topic for the address). 
 clients remotely, with on-site sessions for workshops and kickoffs where it makes sense. For
 anything more specific about locations or scheduling logistics, connect them with a strategist.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/about", checkedOn: "2026-08-25" },
+  ],
 };

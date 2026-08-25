@@ -26,6 +26,60 @@ describe("knowledge base", () => {
     expect(getDoc("nope")).toBeUndefined();
   });
 
+  // The first version of this knowledge base was written from a brief rather than the
+  // website, and shipped a booking URL that 404s, six invented price bands, and four
+  // fabricated case studies. The only safeguard was a sentence in a planning document,
+  // which a running system cannot read. These tests are that safeguard in a form the
+  // build can enforce.
+  describe("provenance", () => {
+    it("every document names at least one page it was checked against", () => {
+      for (const doc of KNOWLEDGE_BASE) {
+        expect(doc.sources.length, `${doc.id} has no sources`).toBeGreaterThan(0);
+      }
+    });
+
+    it("every source is an https URL on cadreai.com", () => {
+      for (const doc of KNOWLEDGE_BASE) {
+        for (const source of doc.sources) {
+          expect(source.url, `${doc.id}: ${source.url}`).toMatch(
+            /^https:\/\/www\.cadreai\.com(\/|$)/,
+          );
+        }
+      }
+    });
+
+    it("every checkedOn is a real YYYY-MM-DD date, not a placeholder", () => {
+      for (const doc of KNOWLEDGE_BASE) {
+        for (const source of doc.sources) {
+          expect(source.checkedOn, `${doc.id}: ${source.checkedOn}`).toMatch(
+            /^\d{4}-\d{2}-\d{2}$/,
+          );
+          // Catches 2026-13-45 and similar, which the regex alone would accept.
+          const parsed = new Date(`${source.checkedOn}T00:00:00Z`);
+          expect(Number.isNaN(parsed.getTime()), `${doc.id}: unparseable date`).toBe(false);
+          expect(parsed.toISOString().slice(0, 10)).toBe(source.checkedOn);
+        }
+      }
+    });
+
+    it("keeps source metadata out of the rendered prompt", () => {
+      // Provenance is for maintainers, not context for the model. If it rendered, then
+      // re-checking a page would change a prompt that is cached by exact prefix and
+      // silently invalidate the cache for every user.
+      //
+      // Asserts on `checkedOn` rather than `url`: a source URL can legitimately appear in a
+      // body — cadreai.com/contact is the link the bot exists to hand out — so asserting on
+      // URLs failed for a document doing exactly the right thing. The dates are the part
+      // that is metadata and nothing else.
+      const prompt = buildSystemPrompt();
+      for (const doc of KNOWLEDGE_BASE) {
+        for (const source of doc.sources) {
+          expect(prompt, `${doc.id} leaked provenance metadata`).not.toContain(source.checkedOn);
+        }
+      }
+    });
+  });
+
   it("covers every scenario the bot is expected to handle", () => {
     // Guards against a doc being deleted or renamed without the system prompt noticing.
     for (const required of [

@@ -49,4 +49,9 @@ them to the contact form. Do not apologise repeatedly or imply that pushing hard
 ### Anyone asking for a real quote
 Route them to a strategist via the contact-and-booking topic. That is the correct answer.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/strategy", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/contact", checkedOn: "2026-08-25" },
+  ],
 };

@@ -67,4 +67,9 @@ Describe the approach; never the terms. Anyone asking what their agreement says,
 what happens to the systems if they stop working with Cadre, or wanting any of it in writing needs
 a human. That is a commercial conversation and not yours to have.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/terms-of-service", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/ai-transformation-intensive", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+  ],
 };

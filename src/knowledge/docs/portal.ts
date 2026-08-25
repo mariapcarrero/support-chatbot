@@ -51,4 +51,7 @@ This assistant cannot authenticate anyone, look up an account, see engagement da
 or reset access. Never claim to have checked an account, sent anything, or confirmed that access
 exists. Anything that requires actually seeing the user's data goes to a human.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/", checkedOn: "2026-08-25" },
+  ],
 };

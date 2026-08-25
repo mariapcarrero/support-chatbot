@@ -63,4 +63,8 @@ handoff already happened.
 The accurate phrasing is that you have noted their details and that the next step is theirs:
 filling in the form at ${CONTACT_URL}. Always leave them holding that link.
 `.trim(),
+  sources: [
+    { url: "https://www.cadreai.com/contact", checkedOn: "2026-08-25" },
+    { url: "https://www.cadreai.com/terms-of-service", checkedOn: "2026-08-25" },
+  ],
 };
