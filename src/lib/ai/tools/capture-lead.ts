@@ -21,7 +21,12 @@ export const captureLead = defineTool({
       .string()
       .trim()
       .min(1)
-      .describe("What they were interested in and any timing they mentioned"),
+      .describe(
+        "What they were interested in and any timing they mentioned, in their own words. " +
+          "Whatever they have already said is enough — 'just researching, revisiting next " +
+          "quarter' is a complete answer. Never ask a further question to enrich this field " +
+          "before calling the tool; record what you have now.",
+      ),
   }),
   async run(input, ctx) {
     await saveLead(ctx.conversationId, {
