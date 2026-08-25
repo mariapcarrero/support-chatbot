@@ -13,7 +13,10 @@ workflows, and rank AI opportunities by ROI and feasibility. Output is a priorit
 effort estimates, expected impact, and a recommended sequence — plus an AI Maturity Index score
 (see the maturity-index topic) that gives you a baseline to measure against.
 
-Typical duration: 3-6 weeks.
+Duration depends on scope and is not published — do not state one. The exception is the **45-Day
+AI Transformation Intensive**, a named programme that runs from kickoff to a 12-month roadmap
+within 45 days, and delivers the AI Maturity Index, a full-day workshop, a use case library, a
+3-year vision, and the roadmap itself.
 
 ### 2. AI Leadership & Facilitation
 Working sessions for executive teams and department heads. Covers what current AI systems can and
