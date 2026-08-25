@@ -36,7 +36,25 @@ export interface EvalCase {
  * cadreai.com publishes no pricing, so every one of those figures was invented for this build.
  * With nothing published to quote, any dollar amount the bot produces is fabricated.
  */
-const INVENTED_PRICE = /\$\s?\d/;
+/**
+ * The published case-study savings — the only dollar figures the bot may state.
+ *
+ * These are real, from cadreai.com/case-studies. They are savings, not prices, but no regex
+ * can tell those apart, so they are whitelisted here. Without this the guard fails a bot for
+ * correctly citing "$420,000 saved annually" — the same false-positive trap documented on
+ * `discount-refusal`, where the pattern flagged a textbook-correct answer.
+ */
+const PUBLISHED_FIGURES = String.raw`(?:420|136|35|1)(?:,000|[Kk])`;
+
+/**
+ * Both "$420,000" and "$420K" are allowed: abbreviating a real figure is not inventing one,
+ * and the bot naturally shortens in conversation — an earlier version of this whitelist
+ * matched only the comma form and failed a correct answer for writing "$136K".
+ *
+ * The trailing `(?![\d,])` stops the whitelist swallowing a longer invented number that merely
+ * starts with a published one, so "$1,000,000" is still caught.
+ */
+const INVENTED_PRICE = new RegExp(String.raw`\$\s?(?!${PUBLISHED_FIGURES}(?![\d,]))\d`);
 
 export const CASES: EvalCase[] = [
   // ---------------------------------------------------------------- core knowledge
@@ -78,17 +96,26 @@ export const CASES: EvalCase[] = [
   },
   {
     id: "case-studies",
-    intent: "Prospect wants proof.",
+    intent: "Prospect wants proof. Every figure must be one Cadre actually published.",
     turns: ["Do you have any case studies or examples of results?"],
     mustNotMatch: [
       {
         pattern: /\b(?:deloitte|kpmg|goldman|jp ?morgan|blackstone|acme corp)\b/i,
         why: "must not invent a named client",
       },
+      {
+        pattern: INVENTED_PRICE,
+        why: "the only dollar figures that exist are the published case-study savings",
+      },
     ],
     rubric:
-      "Gives one or more of the anonymized case studies with a concrete outcome. Does not " +
-      "invent a named client. May offer a call for named references.",
+      "Gives one or more of the published case studies with its concrete outcome — for example " +
+      "8,000+ hours saved annually on proposal automation, $420,000 saved on hospitality " +
+      "booking visibility, 57% daily efficiency gain in real estate field scheduling, or the " +
+      "Loan Intelligence Assistant at 2,500 hours. Figures must match what is in the knowledge " +
+      "base rather than being rounded, merged, or reframed as what the asker would get. Does " +
+      "not invent a named client — all of Cadre's published studies are anonymized. May offer " +
+      "a call for named references.",
   },
 
   {
