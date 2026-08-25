@@ -85,7 +85,7 @@ applied to itself.
 
 ## Verification
 
-**`npm test`** — 72 unit tests. Fast, offline, free. The one worth calling out asserts the
+**`npm test`** — 76 unit tests. Fast, offline, free. The one worth calling out asserts the
 system prompt renders byte-identically every time: a single interpolated timestamp would
 silently drop the prompt cache hit rate to zero, with no symptom except the bill.
 
@@ -109,7 +109,8 @@ src/lib/maturity/    Deterministic scoring
 src/lib/db/          Drizzle schema, repository, in-memory fallback store
 src/lib/guards/      Rate limiting
 src/app/api/chat/    Route handler (SSE)
-src/app/api/health/  Deploy smoke-test endpoint
+src/app/api/health/  Deploy smoke test — `?probe=1` proves the key works, not just that it exists
+src/app/admin/       Demo ops inbox (basic auth via src/middleware.ts)
 src/hooks/           useChat transport
 src/components/chat/ UI
 scripts/migrate.ts   Runs on deploy via `vercel-build`
@@ -125,8 +126,18 @@ prompt-cache ordering, API parameters that now return 400, files that must stay 
 
 ## Note on knowledge base content
 
-The Cadre AI facts in `src/knowledge/docs/` are **illustrative**, written for this build from
-the public brief. Pricing bands, case study figures, portal URLs, and contact addresses are
-plausible placeholders, not verified company facts. They'd need replacing with confirmed
-content before a real deployment — which is precisely why they're isolated in one directory
-behind a typed contract, so doing that touches no code.
+**Every factual claim in `src/knowledge/docs/` traces to cadreai.com.**
+
+The first version didn't. It was written from the public brief and was plausible rather than
+true — a booking URL that 404s, six invented price bands, four fabricated case studies, a
+five-dimension framework where the real one has eight named pillars, and a support SLA nobody
+had published. Each was found by going topic by topic against the live site. The full account,
+including why the most confident claims were the most likely to be invented, is in
+[plan.md](./plan.md#grounding-the-knowledge-base-was-invented-and-then-it-wasnt).
+
+Where Cadre publishes nothing — pricing, ownership of deliverables, security practice, portal
+sign-in, support response times — the bot says so and routes to a human rather than producing
+the helpful-sounding answer. That refusal is deliberate, and the eval suite asserts it.
+
+What's still missing is the *mechanism*: `KnowledgeDoc` has no `sources` field, so provenance is
+a discipline rather than a build error. The designed fix is specified in plan.md.

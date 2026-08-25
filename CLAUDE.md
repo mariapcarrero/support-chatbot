@@ -13,6 +13,7 @@ cannot answer to a human.
 | `npm test` | Vitest unit suite. Fast, offline, free. |
 | `npm run eval` | Eval suite against the real API. **Costs money, ~1 min.** |
 | `npm run eval -- pricing` | Only cases whose id contains "pricing" |
+| `npm run eval:judge-check` | Is the judge still discriminating? Run when `JUDGE_MODEL` changes. |
 | `npm run verify` | typecheck + lint + test |
 | `npm run db:generate` / `db:migrate` | Drizzle migrations |
 | `npm run db:studio` | Browse the database |
@@ -40,7 +41,9 @@ src/lib/db/             Drizzle schema + repository. All DB access via repositor
 src/lib/guards/         Rate limiting
 src/lib/session.ts      Anonymous session cookie
 src/app/api/chat/       The route handler. Rate limit, validation, ownership, SSE.
-src/app/api/health/     Deploy smoke test — provider, key, db status
+src/app/api/health/     Deploy smoke test. `?probe=1` makes one real call — proves the key WORKS
+src/app/admin/          Demo ops inbox: leads and escalations as rows (basic auth)
+src/middleware.ts       Gates /admin. Fails closed: no ADMIN_PASSWORD -> 404 in production
 src/hooks/use-chat.ts   Client transport
 src/components/chat/    UI
 scripts/migrate.ts      Applied on deploy via the vercel-build script
@@ -199,12 +202,32 @@ backstop, not as the design.
   case pass — that turns the suite into a mirror of current behaviour instead of a spec.
 - `.env.local` is never committed. `.env.example` documents the variables.
 
-## Knowledge base accuracy
+## Knowledge base accuracy — read before editing any doc
 
-The Cadre AI facts in `src/knowledge/docs/` are **illustrative**, written for this build from
-the public brief. Pricing bands, case study numbers, portal URLs, and contact addresses are
-plausible placeholders, not verified company facts. Before any real deployment they must be
-replaced with content Cadre AI confirms. The architecture is designed for exactly this: the
-facts are isolated in one directory with a typed contract, so replacing them touches no code.
+**Every factual claim in `src/knowledge/docs/` traces to cadreai.com.** The first version was
+written from the public brief instead, and shipped a booking URL that 404s, six invented price
+bands, four fabricated case studies, a five-part framework where the real one has eight, and an
+invented support SLA. All of that is corrected. See the grounding section of `plan.md`.
+
+The rule when adding or editing a doc:
+
+1. **Check the page before you write the claim.** Use raw HTML (`curl … | sed 's/<[^>]*>//g'`),
+   not a summarizer — a summarizing step is itself a place inventions enter. The eight pillars
+   were confirmed against a heading that literally reads "The 8 Pillars of AI Transformation".
+2. **If it is not published, the bot does not say it.** Pricing, deliverable ownership, security
+   practice, portal sign-in, and support response times all fall here. The doc should say so and
+   route to a human. Refusing is the correct answer, not a failure to be helpful.
+3. **The reassuring claim is the dangerous one.** "The client owns everything we build" is what a
+   prospect wants to hear, is what they will repeat back to Cadre, and is published nowhere.
+   Confidence is not evidence.
+4. **Add a `mustNotMatch` guard** for the invented version of anything commercially sensitive,
+   and test the pattern against known-good answers before trusting it — several guards here have
+   failed *correct* refusals.
+
+There is no `sources` field enforcing this yet, so it is a discipline rather than a build error.
+The designed fix is in `plan.md`.
+
+Facts stay isolated in one directory behind a typed contract, so replacing them with a
+Cadre-supplied fact sheet touches no code.
 
 @AGENTS.md
