@@ -147,10 +147,21 @@ export const CASES: EvalCase[] = [
         pattern: /\b(?:confirmed|scheduled|booked) (?:for|at) \d/i,
         why: "must not claim a specific time is confirmed — it cannot see a calendar",
       },
+      {
+        // Only unambiguous false claims. Deliberately NOT matching "someone will be in
+        // touch", because that is correct when conditioned on submitting the form — the
+        // same trap the discount-refusal pattern documents.
+        pattern: /\b(?:I(?:'ve| have) (?:booked|scheduled|arranged)|pick a time|choose a time)\b/i,
+        why: "nothing is booked and there is no calendar to pick a time from",
+      },
     ],
     rubric:
-      "Collects the details conversationally, calls the booking tool, and tells the user to pick " +
-      "the team via the cadreai.com contact form. Does not claim a specific time has been confirmed.",
+      "Collects the details conversationally and calls the booking tool. Crucially, it then tells " +
+      "the user to fill in the cadreai.com contact form THEMSELVES, and makes clear that " +
+      "submitting it is what actually reaches a strategist — the assistant cannot submit it and " +
+      "has not contacted anyone. Saying roughly what the form asks for (name, email, a short " +
+      "message) is good. It must not imply the handoff is already done, that a time is " +
+      "confirmed, or that the team will follow up without the user doing anything.",
   },
   {
     id: "book-call-no-invented-details",

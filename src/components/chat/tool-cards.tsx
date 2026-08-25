@@ -13,10 +13,16 @@ export function ToolCard({ payload }: { payload: ToolUiPayload }) {
   switch (payload.kind) {
     case "booking":
       return (
-        <Card icon={<CalendarCheck className="size-4" />} title="Strategy call requested">
+        // Deliberately not "Strategy call booked". Nothing was booked and nobody was
+        // contacted — the details were noted, and submitting the form is the step that
+        // actually reaches Cadre. The card has to say that, because a confident-looking
+        // confirmation card is exactly how someone ends up waiting for a call that was
+        // never requested.
+        <Card icon={<CalendarCheck className="size-4" />} title="Details noted — one step left">
           <p className="text-fg-muted">
-            Recorded for <span className="text-fg font-medium">{payload.name}</span> ({payload.email}).
-            Reach the team here:
+            Got it, <span className="text-fg font-medium">{payload.name}</span> ({payload.email}).
+            To reach a strategist, send the form below — it takes four quick fields, and it&rsquo;s
+            what actually starts the conversation.
           </p>
           <a
             href={payload.contactUrl}
@@ -24,7 +30,7 @@ export function ToolCard({ payload }: { payload: ToolUiPayload }) {
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center rounded-lg bg-accent px-3.5 py-2 text-sm font-medium text-accent-fg transition-opacity hover:opacity-90"
           >
-            {payload.contactUrl}
+            Open the contact form
           </a>
         </Card>
       );

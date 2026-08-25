@@ -52,12 +52,14 @@ export const bookStrategyCall = defineTool({
 
     return {
       content:
-        `Request recorded for ${input.name} (${input.email}) at ${input.company}. ` +
-        `Topic: ${input.topic}. ` +
-        `Point them to ${CONTACT_URL} to reach the team. There is no scheduling page and no ` +
-        `calendar, so do NOT say a call is confirmed, scheduled, or that they can "pick a time" — ` +
-        `the accurate phrasing is that their request is recorded and the form is how they reach ` +
-        `a strategist directly.`,
+        `Noted for ${input.name} (${input.email}) at ${input.company}. Topic: ${input.topic}. ` +
+        `This recorded their details only — it did NOT contact anyone and no call is booked. ` +
+        `You must now send them to ${CONTACT_URL} and be clear that submitting that form is the ` +
+        `step that actually reaches a strategist, and that they have to do it themselves. ` +
+        `It asks for four quick things: name, email, a subject, and a short message — you may ` +
+        `say that to lower the barrier, but do not recite exact field labels. ` +
+        `Do NOT say a call is confirmed or scheduled, that they can "pick a time", or that the ` +
+        `team "will be in touch" — nothing reaches Cadre until they submit the form.`,
       ui: {
         kind: "booking" as const,
         contactUrl: CONTACT_URL,

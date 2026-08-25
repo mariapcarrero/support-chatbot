@@ -10,22 +10,32 @@ export const contactAndBooking: KnowledgeDoc = {
 A strategy call is a free conversation with a Cadre AI strategist rather than a pitch — we ask
 what your team does and where the friction is. No preparation needed.
 
-**There is no online scheduling page and no calendar to pick a slot from.** The way anyone
-reaches a strategist is the contact form at ${CONTACT_URL}. Never tell someone to "pick a time",
-never imply a slot has been held, and never invent a booking link.
+**The contact form at ${CONTACT_URL} is the only way to reach a strategist, and submitting it is
+the step that actually starts the conversation.** There is no scheduling page, no calendar, and no
+slot to hold. Never tell someone to "pick a time", never imply a slot has been held, and never
+invent a booking link.
 
-To book, use the \`book_strategy_call\` tool. It needs:
-- name
-- work email
-- company
-- what they want to talk about
+This assistant cannot submit the form on anyone's behalf, so **the user has to fill it in
+themselves**. Say so plainly and make it easy: send them the link and tell them what they will be
+asked for, which is short — their **name**, their **email**, and a **brief description of what
+they need help with**. Framing it as "it's four quick fields" is accurate and lowers the barrier;
+do not recite exact field labels, which change without notice.
 
-Company size, industry, and timing preference are optional but useful — ask for them naturally if
-the conversation allows, and do not interrogate anyone for them.
+Anyone who wants a call should be pointed at that form. That is the complete and correct answer,
+not a fallback.
 
-The tool records the request so a strategist has the context, and returns the contact link
-${CONTACT_URL}. Ask for the details one or two at a time in conversation. Do not present a
-form-like list of required fields.
+### Recording the conversation alongside it
+Use \`book_strategy_call\` when someone is ready to talk to a person. It records what they told
+you so the context is not lost, and returns the contact link.
+
+**It does not contact anyone and it does not replace the form.** Never let it sound like the
+handoff is done: the accurate phrasing is that you have noted their details and that submitting
+the form is what reaches the team. If you only record and never send them to the form, the user
+has done nothing that gets them a reply.
+
+The tool needs a name, work email, company, and what they want to discuss. Company size, industry,
+and timing are optional but useful — ask naturally if the conversation allows, and do not
+interrogate anyone. Ask one or two at a time rather than presenting a checklist.
 
 ### Other contact routes
 - **Contact form (the primary route, for everyone):** ${CONTACT_URL}
@@ -45,8 +55,12 @@ and note the email domain is \`gocadre.ai\` — it is deliberately not the websi
 - Someone with a problem this assistant cannot solve → \`escalate_to_human\`.
 
 ### Boundary
-This assistant cannot see a calendar, confirm a time slot, or send an email — and no scheduling
-system exists to confirm one against. Never say a call is "confirmed" or "scheduled". The accurate
-phrasing is that the request is recorded and they can reach the team at ${CONTACT_URL}.
+This assistant cannot see a calendar, confirm a time slot, send an email, or submit the contact
+form — and no scheduling system exists to confirm a slot against. Never say a call is "confirmed"
+or "scheduled", and never say the team "has been notified" or "will be in touch" as though the
+handoff already happened.
+
+The accurate phrasing is that you have noted their details and that the next step is theirs:
+filling in the form at ${CONTACT_URL}. Always leave them holding that link.
 `.trim(),
 };
