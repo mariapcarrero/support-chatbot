@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*
+ * Palette — derived from the Cadre AI brand site (cadreai.com).
+ *
+ * Source tokens lifted from their stylesheet:
+ *   --cadre-red   #db4545   --cadre-sand      #faf9f6
+ *   --cadre-blue  #08749b   --cadre-sand-dark #f2efe4
+ *                           --primary-black   #0b0707
+ *
+ * Two deliberate departures from the raw brand values, both for contrast:
+ *
+ * 1. `--accent` is #c23434, not the brand's #db4545. White text on #db4545 is 4.24:1 —
+ *    under the 4.5:1 AA floor — and the accent carries button labels and the user bubble.
+ *    Darkening ~8% lifts it to 5.48:1 while staying visibly the same red. #db4545 is still
+ *    correct for large non-text brand moments if any get added.
+ * 2. Cadre ships no dark mode, so the dark ramp is derived: backgrounds are warm-black
+ *    (tinted toward sand rather than neutral grey) and the two brand hues are lightened
+ *    until they clear 4.5:1 on those backgrounds.
+ *
+ * Red is the interactive accent (matching the site, where red is the CTA colour) and blue is
+ * the informational hue used for links. `--danger` is therefore pushed to a much darker,
+ * desaturated brick so an error never reads as a brand element — it is only ever used as text
+ * on `--danger-soft`, never as a fill.
+ *
+ * Light is the base; dark is a token override only. Every colour is defined here once and
+ * referenced through a token, so no component hard-codes a hex value and dark mode cannot
+ * drift out of sync with light.
+ */
+:root {
+  --bg: #faf9f6;           /* cadre-sand */
+  --surface: #ffffff;
+  --surface-muted: #f2efe4; /* cadre-sand-dark */
+  --fg: #0b0707;           /* cadre primary-black */
+  --fg-muted: #5c5551;
+  --fg-subtle: #767066;
+  --border: #ddd8c9;
+  --accent: #c23434;       /* AA-safe cadre-red */
+  --accent-fg: #ffffff;
+  --accent-soft: #fbeceb;
+  --info: #08749b;         /* cadre-blue */
+  --info-soft: #e8f2f6;
+  --danger: #8f2018;
+  --danger-soft: #fbeceb;
+  --success: #1a7f5a;
+  --success-soft: #e7f4ee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0d0c;
+    --surface: #171413;
+    --surface-muted: #201b19;
+    --fg: #f7f5ef;
+    --fg-muted: #b3aaa2;
+    --fg-subtle: #857b73;
+    --border: #332b28;
+    --accent: #f07470;
+    --accent-fg: #2b0d0b;
+    --accent-soft: #2a1614;
+    --info: #5cbcdc;
+    --info-soft: #0e2831;
+    --danger: #f4938c;
+    --danger-soft: #2a1412;
+    --success: #5ad3a4;
+    --success-soft: #0f251d;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Markdown rendered from model output. Scoped so it cannot leak into chrome. */
+.prose-chat > :first-child {
+  margin-top: 0;
+}
+.prose-chat > :last-child {
+  margin-bottom: 0;
+}
+.prose-chat p,
+.prose-chat ul,
+.prose-chat ol,
+.prose-chat table {
+  margin-block: 0.65em;
+}
+.prose-chat ul,
+.prose-chat ol {
+  padding-left: 1.25em;
+}
+.prose-chat ul {
+  list-style: disc;
+}
+.prose-chat ol {
+  list-style: decimal;
+}
+.prose-chat li {
+  margin-block: 0.25em;
+}
+.prose-chat strong {
+  font-weight: 600;
+}
+/* Links take the brand blue, not the accent red: the red is the CTA colour and a link that
+   matches it reads as a button. */
+.prose-chat a {
+  color: var(--info);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-chat code {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.9em;
+  background: var(--surface-muted);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+/* Tables can exceed the bubble; the wrapper in MessageBubble scrolls them. */
+.prose-chat table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+.prose-chat th,
+.prose-chat td {
+  border: 1px solid var(--border);
+  padding: 0.4em 0.6em;
+  text-align: left;
+}
+.prose-chat th {
+  background: var(--surface-muted);
+  font-weight: 600;
+}
+
+@keyframes cadre-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.animate-dot {
+  animation: cadre-pulse 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-dot {
+    animation: none;
+    opacity: 0.7;
+  }
+}
