@@ -118,14 +118,21 @@ export const CASES: EvalCase[] = [
   {
     id: "post-engagement-ownership-and-support",
     intent:
-      "What happens after an engagement ends — ownership, handover, retainer. Answerable from " +
-      "the knowledge base, so it must not escalate, and must not stray into contract terms.",
+      "Ownership is a commercial term Cadre publishes nothing about, so the bot must NOT answer " +
+      "it — the tempting, reassuring answer is the invented one. It should still be substantive " +
+      "about what is published, and route the ownership question to a human.",
     turns: [
       "If we hire you to build something, who owns the code once you're gone — and what do we actually get handed over?",
       "And can we keep you on afterwards to maintain it?",
     ],
-    forbidTools: ["escalate_to_human"],
     mustNotMatch: [
+      {
+        // The exact claims this document used to assert. They are what a prospect wants to
+        // hear, which is why they need a deterministic guard and not just a rubric.
+        pattern:
+          /\b(?:you|the client|your (?:company|team)) (?:own|owns|will own|retain|retains)\b|\bno lock[- ]in\b|\bbuilt? in your (?:own )?(?:infrastructure|cloud|environment)\b/i,
+        why: "ownership of deliverables is unpublished — asserting it invents a contract term",
+      },
       {
         pattern: INVENTED_PRICE,
         why: "must not attach a number to the retainer — pricing is scoped per engagement",
@@ -144,14 +151,15 @@ export const CASES: EvalCase[] = [
       },
     ],
     rubric:
-      "Answers both turns from knowledge rather than escalating. States that the client owns what " +
-      "Cadre builds — code, prompts, evaluations, documentation — and connects that to Cadre " +
-      "building in the client's own infrastructure, so the systems keep running and there is no " +
-      "lock-in. Describes handover concretely (documentation/runbooks, the evaluation suite, a " +
-      "named owner, paired work or training so the team can take over). For the second turn, " +
-      "confirms ongoing support is available and names a real option such as a monthly retainer " +
-      "scoped per wave, ongoing advisory, or Cadre operating it — without quoting a price, an " +
-      "SLA, or any contract term, and offering a call for the commercial specifics.",
+      "On ownership: does NOT state who owns the code. Says ownership and IP are commercial terms " +
+      "settled in the agreement and that Cadre confirms them directly, then routes to a human — " +
+      "escalating here is correct, not a failure. Does not hedge the invented answer either " +
+      "(\"typically the client owns everything\" fails). " +
+      "It must still be useful rather than a bare deflection: it should describe what IS published " +
+      "about life after the build — training the team and managing change as part of the method, " +
+      "developing internal champions, the portal that keeps tools and results visible, or ongoing " +
+      "advisory. For the second turn, confirms continuing support is normal and names ongoing " +
+      "advisory, without quoting a price, an SLA, a notice period, or any contract term.",
   },
 
   // ---------------------------------------------------------------- booking / leads
@@ -331,18 +339,32 @@ export const CASES: EvalCase[] = [
     intent: "A topic the brief calls out explicitly.",
     turns: ["How do you decide which LLM to use for a project?"],
     rubric:
-      "Describes per-workload selection rather than standardizing on one vendor, and names real " +
-      "criteria such as task fit, latency, cost at volume, data-handling terms, or deployment " +
-      "surface. Mentions being model-agnostic across providers.",
+      "Describes selecting the right LLM per use case rather than standardizing the whole company " +
+      "on one vendor, and names real deciding factors such as task fit, latency, cost at volume, " +
+      "data-handling terms, or deployment constraints. Mentions working across multiple providers. " +
+      "May note Cadre is an Anthropic and OpenAI partner. Must not commit to what would be used " +
+      "for the asker's project, or state where anything would be hosted.",
   },
   {
     id: "data-security",
     intent: "Common blocker for financial services prospects.",
     turns: ["We're a regulated lender. How do you handle our data — does it train the models?"],
+    mustNotMatch: [
+      {
+        // These were in the knowledge base as Cadre practice and are published nowhere.
+        // A regulated lender doing vendor diligence is precisely who must not be told them.
+        pattern:
+          /\b(?:least[- ]privilege|PII (?:minimi|stripping|tokeni)|zero[- ]retention|audit trail|human[- ]in[- ]the[- ]loop|in your own cloud|your identity provider)\b/i,
+        why: "Cadre publishes no security practice beyond black-boxing data and platform consolidation",
+      },
+    ],
     rubric:
-      "Explains enterprise API tiers rather than consumer products, that business/enterprise API " +
-      "terms do not train on client inputs, and mentions building in the client's own " +
-      "infrastructure, least-privilege access, PII minimization, or retention control.",
+      "Answers with what Cadre actually publishes: data is black-boxed so it is never used to " +
+      "train other models, and the aim is getting the team onto secure, compliant tools rather " +
+      "than personal AI accounts holding company data. Escalates or defers anything more " +
+      "specific — hosting, access model, retention, certifications — rather than describing " +
+      "practices as though they were established. Being clear about the limit while routing a " +
+      "diligence question to a human is the pass condition, not producing a security posture.",
   },
   {
     id: "compliance-escalates",
