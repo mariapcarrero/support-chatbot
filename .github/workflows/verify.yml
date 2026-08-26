@@ -1,0 +1,43 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Runs `npm run verify` only: typecheck, lint, and the offline unit suite.
+#
+# It deliberately does NOT run `npm run eval`. That suite calls the real API, costs money per
+# case, and is model-graded — so a few cases are intermittent. Wiring it to every push would
+# bill on every commit and produce red builds that mean "the model phrased it differently
+# this time". The eval suite is a human-run ship gate (`/ship`), not CI.
+#
+# The consequence worth stating: a green check here means the code compiles, lints, and its
+# deterministic behaviour is intact. It does not mean the bot still answers correctly. Those
+# are different questions and only one of them is cheap.
+#
+# No secrets are configured, and none are needed — verified by running the suite with both
+# API keys unset. If a test ever starts needing a key, that test has stopped being a unit test.
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `ci` not `install`: fails if package-lock.json is out of sync with package.json,
+      # which is a real defect worth failing on rather than silently resolving around.
+      - run: npm ci
+
+      - run: npm run verify

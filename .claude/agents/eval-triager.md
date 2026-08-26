@@ -14,9 +14,20 @@ than a specification of correct behaviour.
 
 1. Run `npm run eval`. If a filter is useful, `npm run eval -- <substring>` runs a subset.
 2. For each failure, read the printed transcript before forming a theory.
-3. Re-run a failing case once on its own. These cases are model-generated and not perfectly
-   deterministic — a case that passes on re-run is flaky, which is itself a finding worth
-   reporting, not a pass.
+3. **Sample a failing case 3-5 times before concluding anything**, with
+   `npm run eval -- <substring>`. One run tells you almost nothing: these cases are
+   model-graded and several are intermittent. Report the rate — "2/5" is a finding; "it
+   failed" is not.
+
+   This is the most expensive mistake available here. During this build, a case was declared
+   a regression from a single sample, and six further runs were spent discovering it failed
+   at the same rate before the change. If you are comparing against a baseline, sample the
+   baseline too — `git stash` the change and run the same case the same number of times.
+4. **Suspect the harness before the app.** Two "production is broken" findings during this
+   build were faults in the test script, not the product: one parsed for a `tool` SSE event
+   when the protocol emits `tool_start`/`tool_end`, the other sent no session cookie, so the
+   server correctly refused to replay history and it looked like memory loss. Before
+   reporting a failure, confirm the thing doing the measuring works.
 
 ## Classify every failure into exactly one bucket
 
