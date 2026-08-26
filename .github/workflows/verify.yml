@@ -56,7 +56,9 @@ jobs:
           npm ci 2>&1 | tee /tmp/install.log || {
             # `::error::` emits an annotation, which is readable from the public API. The job
             # summary is not: the previous attempt wrote there and the reason stayed invisible.
-            echo "::error::npm ci failed -- $(tail -12 /tmp/install.log | tr '\n' ' | ' | cut -c1-900)"
+            # HEAD, not tail: npm prints the real error first and then its full usage text,
+            # so the tail is all help output and none of the cause.
+            echo "::error::npm=$(npm -v) node=$(node -v) -- $(grep -m6 'npm error' /tmp/install.log | tr '\n' ' | ' | cut -c1-800)"
             exit 1
           }
 
