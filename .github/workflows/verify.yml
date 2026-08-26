@@ -32,15 +32,43 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      # v5: the v4 actions target Node 20, which is deprecated on runners and was being
+      # force-migrated to Node 24 with a warning on every run.
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
 
-      # `ci` not `install`: fails if package-lock.json is out of sync with package.json,
-      # which is a real defect worth failing on rather than silently resolving around.
-      - run: npm ci
+      # Both steps below tee their output into the job summary on failure.
+      #
+      # The first version of this workflow failed at `npm ci` and reported only "Process
+      # completed with exit code 1". Reading the actual error needed an authenticated API
+      # call, which is a poor property for the thing whose whole job is telling you what
+      # broke. A red check that cannot say why is barely better than no check.
+      - name: Install dependencies
+        run: |
+          set -o pipefail
+          npm ci 2>&1 | tee /tmp/install.log || {
+            {
+              echo '### `npm ci` failed'
+              echo '```'
+              tail -50 /tmp/install.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
 
-      - run: npm run verify
+      - name: Typecheck, lint, unit tests
+        run: |
+          set -o pipefail
+          npm run verify 2>&1 | tee /tmp/verify.log || {
+            {
+              echo '### `npm run verify` failed'
+              echo '```'
+              tail -80 /tmp/verify.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          }
