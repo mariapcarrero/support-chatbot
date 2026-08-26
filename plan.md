@@ -258,6 +258,28 @@ Worth recording because the split is instructive.
   at the edit rather than at the next manual check.
 - **Permission allowlist** for the read-only and routine commands, with `.env`, `.env.local`, and `.env.*.local` denied.
 
+### What these files learned the hard way
+
+The rules in `.claude/` are not a generic best-practice checklist. Each one is there because
+something went wrong first, and the incident is more useful than the rule:
+
+| Rule | What put it there |
+| --- | --- |
+| `kb-curator`: verify against **raw page HTML**, never a summary | A fetched summary of the contact page produced a confident, plausible, wrong list of form fields. The raw markup said otherwise. The summarizing step is itself a place inventions enter |
+| `kb-curator`: `sources` is required | The knowledge base shipped a booking URL that 404s, six invented price bands, and four fabricated case studies. Nothing in the code distinguished a verified fact from a fluent one |
+| `kb-curator`: registering is two steps, or it silently does nothing | A document was added, not registered, and quietly had no effect. A test catches it now |
+| `kb-curator`: grep the **whole** base after an edit | Correcting the Maturity Index to eight pillars left two other documents still saying "five dimensions" for an hour. A knowledge base that disagrees with itself is worse than one that is stale |
+| `eval-triager`: sample a failure **3-5 times**, and sample the baseline too | A case was called a regression off one sample. Six further runs established it had failed at the same rate before the change |
+| `eval-triager`: suspect the **harness** before the product | Two "production is broken" findings were bugs in the test script — one parsed for a `tool` SSE event when the protocol emits `tool_start`/`tool_end`, the other sent no session cookie, so the server correctly refused to replay history and it looked like amnesia |
+| `eval-triager`: diagnose, never fix | The instinct on a red eval is to edit the prompt until it goes green, which turns the suite into a description of current behaviour instead of a specification of correct behaviour |
+| `/ship`: order stages by cost, and check the provider first | Typecheck and unit tests are free; the eval stages are not. A full suite against the capped OpenRouter key is most of the balance, not a slightly worse idea |
+| `/ship`: run `eval:judge-check` **before** the suite | An LLM judge can fail by starting to pass everything, which turns a real regression into a green run and makes the expensive stage worthless |
+
+The pattern worth noticing: almost every rule above is about **not trusting a confident output** —
+the model's, the summarizer's, a single eval run's, or the test script's. That is the recurring
+failure mode of building this way, and the `.claude/` files are where the defences against it
+live.
+
 ### Managing context, in practice
 
 The parts that actually changed the working loop, as opposed to the parts that look tidy:
