@@ -292,10 +292,11 @@ The parts that actually changed the working loop, as opposed to the parts that l
   shared store (Upstash) is the fix at real traffic. Isolated to one function for that reason.
 - **No streaming resume.** A dropped connection mid-answer loses that turn. The user message is
   persisted before the model runs, so nothing is lost from the record.
-- **Provenance is a discipline, not a mechanism.** Every claim now traces to cadreai.com, but
-  nothing in the code enforces that — no `sources` field, no drift check. See the grounding
-  section above for the designed fix. A new document can still assert something unverified and
-  the build will pass.
+- **Provenance is checked, but not re-checked.** Every document names the pages it was verified
+  against and the build fails without them, so nobody can add a claim having never looked. What
+  is missing is drift: if cadreai.com changes under a correct document, nothing notices. The
+  `checkedOn` dates exist as the hook for a `knowledge:audit` script that re-fetches each source
+  and diffs it. Not built.
 - **The site is the only source.** Anything Cadre knows but has not published — real timelines,
   ownership terms, security practice — the bot cannot answer, and correctly routes to a human.
   That is the right default for a public assistant, but it means a Cadre-supplied fact sheet
@@ -304,3 +305,22 @@ The parts that actually changed the working loop, as opposed to the parts that l
   log. Fine for a walkthrough; not a real ops tool.
 - **Eval cases are model-graded**, so a small amount of flakiness is inherent. The deterministic
   assertion layer carries everything safety-critical for that reason.
+- **The repository branches on its backend thirteen times.** `if (!db)` appears in every function
+  in `src/lib/db/repository.ts`, each one implementing the operation twice — once against the
+  in-memory store, once against Postgres. The right shape is a `Store` interface with two
+  implementations chosen once at module load, which would make the two backends impossible to
+  drift rather than merely detectable when they do.
+
+  This is a known cost, not an oversight. Adding the escalation contact fields meant editing both
+  branches in lockstep across four call sites; the type checker caught every one, which is the
+  system working, but it was doing work the design should have made unnecessary. Left as-is
+  because it is the layer everything depends on and the schedule did not have room to restructure
+  it safely — recorded here rather than quietly tolerated.
+- **The in-chat maturity self-check is not Cadre's AI Maturity Index.** The real Index grades
+  eight published pillars; the tool asks five questions of this project's own devising and
+  produces an indicative score. Rebuilding the scorer around the eight pillars would touch the
+  DB schema, the exhaustive test sweep (5⁵ → 5⁸ inputs), the tool schema and the UI — more than
+  the remaining time allowed, and eliciting eight self-ratings conversationally is a worse
+  experience than five. So the two are kept explicitly distinct in the knowledge base, the tool
+  description, the system prompt and the result card, and the bot is required to say which one
+  it is offering.
