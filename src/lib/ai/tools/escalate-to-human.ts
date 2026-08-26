@@ -56,7 +56,10 @@ export const escalateToHuman = defineTool({
       .describe(
         "Short summary of the conversation so the user does not have to repeat themselves: " +
           "the problem, what they are ultimately trying to achieve, and anything already " +
-          "suggested or ruled out. Two or three sentences.",
+          "suggested or ruled out. Two or three sentences. " +
+          "Write it from what has ALREADY been said — 'wants to discuss a contract issue, no " +
+          "detail given' is a perfectly good summary. Never ask a further question just to " +
+          "enrich this field; the full transcript is filed alongside it anyway.",
       ),
     contactName: z
       .string()
