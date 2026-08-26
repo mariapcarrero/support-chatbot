@@ -32,7 +32,13 @@ export type ToolUiPayload =
       weakest: string;
       recommendation: string;
     }
-  | { kind: "escalation"; reference: string; reason: string }
+  | {
+      kind: "escalation";
+      reference: string;
+      reason: string;
+      contactName: string;
+      contactEmail: string;
+    }
   | { kind: "portal"; email: string | null };
 
 /**

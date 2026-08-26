@@ -68,7 +68,10 @@ export interface CapturedEscalation {
     | "unanswerable"
     | "other";
   reason: string;
-  contactEmail?: string | null;
+  summary: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string | null;
   status: "open" | "resolved";
   createdAt: Date;
 }

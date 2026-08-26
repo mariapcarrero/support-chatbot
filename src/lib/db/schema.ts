@@ -78,7 +78,23 @@ export const escalations = pgTable(
       enum: ["contractual", "account_specific", "commercial", "complaint", "unanswerable", "other"],
     }).notNull(),
     reason: text("reason").notNull(),
+    /**
+     * Model-written summary of the problem, so whoever picks this up does not have to read
+     * the transcript to know what it is about. The transcript is still joinable via
+     * `conversationId` when they need the detail.
+     */
+    summary: text("summary").notNull().default(""),
+    /**
+     * Contact details are the whole point of an escalation here: no human is watching the
+     * chat, so this row IS the handoff. A row nobody can reply to is not a handoff.
+     *
+     * `contactName` and `contactEmail` are nullable at the database level only because rows
+     * written before this change exist. The tool requires both.
+     */
+    contactName: text("contact_name"),
     contactEmail: text("contact_email"),
+    /** Optional: asked for every time, but never allowed to block the escalation. */
+    contactPhone: text("contact_phone"),
     status: text("status", { enum: ["open", "resolved"] })
       .notNull()
       .default("open"),

@@ -56,6 +56,15 @@ export function ToolCard({ payload }: { payload: ToolUiPayload }) {
           tone="accent"
         >
           <p className="text-fg-muted">{payload.reason}</p>
+          {/*
+            Shows the address the reply will go to. The commonest way this flow disappoints
+            someone is a typo'd email they never get to see — the card is the last cheap
+            moment to catch it, since no confirmation is ever sent.
+          */}
+          <p className="mt-2 text-fg-muted">
+            They&rsquo;ll reply to <span className="text-fg font-medium">{payload.contactEmail}</span>
+            {payload.contactName ? <> for {payload.contactName}</> : null}.
+          </p>
           <p className="mt-2">
             Reference{" "}
             <span className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-xs text-fg">

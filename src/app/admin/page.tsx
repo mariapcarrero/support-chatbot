@@ -48,8 +48,10 @@ export default async function AdminPage() {
         </div>
         <p className="max-w-2xl text-sm text-fg-muted">
           What the assistant recorded via tools — bookings, leads, and escalations (including
-          portal access). Nothing here emails anyone. Use delete or clear to leave only the
-          rows you want visible in a demo.
+          portal access). <strong className="text-fg">Nothing here emails anyone.</strong> No
+          human is watching the chat, so an escalation row is the entire handoff: it carries the
+          contact details, a summary so the person never repeats themselves, and a reference the
+          user was given. Replying is a manual job someone has to do from this list.
         </p>
         <p className="text-xs text-fg-subtle">
           {source.kind === "postgres" ? (
@@ -88,8 +90,8 @@ export default async function AdminPage() {
                 <tr>
                   <th className="px-3 py-2.5 font-medium">Reference</th>
                   <th className="px-3 py-2.5 font-medium">Category</th>
-                  <th className="px-3 py-2.5 font-medium">Reason</th>
-                  <th className="px-3 py-2.5 font-medium">Email</th>
+                  <th className="px-3 py-2.5 font-medium">Who</th>
+                  <th className="px-3 py-2.5 font-medium">Needs / summary</th>
                   <th className="px-3 py-2.5 font-medium">Status</th>
                   <th className="px-3 py-2.5 font-medium">When</th>
                   <th className="px-3 py-2.5 font-medium">
@@ -194,8 +196,19 @@ function EscalationRow({ row }: { row: AdminEscalation }) {
           {row.category}
         </span>
       </td>
-      <td className="max-w-xs px-3 py-2.5 text-fg-muted">{row.reason}</td>
-      <td className="px-3 py-2.5 text-fg">{row.contactEmail ?? "—"}</td>
+      <td className="px-3 py-2.5 align-top">
+        <div className="text-fg">{row.contactName ?? "—"}</div>
+        <div className="text-xs text-fg-muted">{row.contactEmail ?? "no email"}</div>
+        {row.contactPhone ? (
+          <div className="text-xs text-fg-muted">{row.contactPhone}</div>
+        ) : null}
+      </td>
+      <td className="max-w-sm px-3 py-2.5 align-top">
+        <div className="text-fg-muted">{row.reason}</div>
+        {row.summary ? (
+          <div className="mt-1 text-xs text-fg-subtle">{row.summary}</div>
+        ) : null}
+      </td>
       <td className="px-3 py-2.5">
         <StatusPill status={row.status} />
       </td>

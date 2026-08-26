@@ -178,7 +178,10 @@ export interface EscalationInput {
     | "unanswerable"
     | "other";
   reason: string;
-  contactEmail?: string | null;
+  summary: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string | null;
 }
 
 export async function saveEscalation(
@@ -205,7 +208,10 @@ export async function saveEscalation(
       reference: input.reference,
       category: input.category,
       reason: input.reason,
-      contactEmail: input.contactEmail ?? null,
+      summary: input.summary,
+      contactName: input.contactName,
+      contactEmail: input.contactEmail,
+      contactPhone: input.contactPhone ?? null,
     });
     await database
       .update(conversations)
@@ -247,7 +253,10 @@ export type AdminEscalation = Pick<
   | "reference"
   | "category"
   | "reason"
+  | "summary"
+  | "contactName"
   | "contactEmail"
+  | "contactPhone"
   | "status"
   | "createdAt"
   | "conversationId"
@@ -316,7 +325,10 @@ export async function listRecentEscalations(
         reference: row.reference,
         category: row.category,
         reason: row.reason,
+        summary: row.summary,
+        contactName: row.contactName ?? null,
         contactEmail: row.contactEmail ?? null,
+        contactPhone: row.contactPhone ?? null,
         status: row.status,
         createdAt: row.createdAt,
       }));
@@ -330,7 +342,10 @@ export async function listRecentEscalations(
         reference: escalations.reference,
         category: escalations.category,
         reason: escalations.reason,
+        summary: escalations.summary,
+        contactName: escalations.contactName,
         contactEmail: escalations.contactEmail,
+        contactPhone: escalations.contactPhone,
         status: escalations.status,
         createdAt: escalations.createdAt,
       })

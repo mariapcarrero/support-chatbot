@@ -21,6 +21,11 @@ export const getPortalAccessHelp = defineTool({
         "cannot_access: they have an account but cannot get in. needs_account: they need " +
           "access set up. general: anything else about the portal.",
       ),
+    name: z
+      .string()
+      .trim()
+      .optional()
+      .describe("Their name, if they have given it — do not invent one"),
     email: emailSchema
       .optional()
       .describe("Their work email, only if they volunteered it — do not invent one"),
@@ -59,7 +64,15 @@ export const getPortalAccessHelp = defineTool({
       reference,
       category: "account_specific",
       reason: `Portal access (${input.issue}) for ${input.email}`,
+      summary:
+        `Existing client cannot get into the portal (${input.issue}). No sign-in method, ` +
+        `portal URL, or response time is published, so nothing beyond filing was offered.`,
+      // The portal flow only files once an email exists, so the name is the one field that
+      // may genuinely be missing here. Recording "(not given)" beats blocking a client who
+      // is already locked out over a field the team can ask for in their reply.
+      contactName: input.name ?? "(not given)",
       contactEmail: input.email,
+      contactPhone: null,
     });
 
     return {

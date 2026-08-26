@@ -121,6 +121,8 @@ describe("admin inbox lists", () => {
       reference: "CAD-ABCDEF",
       category: "account_specific",
       reason: "Portal access (needs_account) for dana@acme.io",
+      summary: "Client needs portal access set up.",
+      contactName: "Dana Kim",
       contactEmail: "dana@acme.io",
     });
 
@@ -147,6 +149,8 @@ describe("admin inbox lists", () => {
       reference: "CAD-DELETE",
       category: "other",
       reason: "cleanup test",
+      summary: "cleanup test",
+      contactName: "Ada Lovelace",
       contactEmail: "ada@acme.io",
     });
 

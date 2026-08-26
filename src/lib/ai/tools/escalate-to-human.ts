@@ -24,7 +24,11 @@ export const escalateToHuman = defineTool({
     "Hand the conversation to a human at Cadre AI. Use when you cannot answer, the user asks " +
     "for a person, the user is frustrated, or the question involves contracts, compliance " +
     "documents, security questionnaires, pricing commitments, or anyone's specific account " +
-    "data. Escalating early is better than guessing.",
+    "data. " +
+    "No human is watching this chat, so this record IS the handoff — it needs a name, an " +
+    "email, and a summary before it can be filed, because nobody can act on a request they " +
+    "cannot reply to. Collect those conversationally first (see the system prompt), then call " +
+    "this. Never invent any of them.",
   schema: z.object({
     category: z
       .enum([
@@ -44,10 +48,32 @@ export const escalateToHuman = defineTool({
       .string()
       .trim()
       .min(1)
-      .describe("What they need, written for the colleague who will pick this up"),
-    contactEmail: emailSchema
+      .describe("What the user is asking for, in one line, written for the colleague picking it up"),
+    summary: z
+      .string()
+      .trim()
+      .min(1)
+      .describe(
+        "Short summary of the conversation so the user does not have to repeat themselves: " +
+          "the problem, what they are ultimately trying to achieve, and anything already " +
+          "suggested or ruled out. Two or three sentences.",
+      ),
+    contactName: z
+      .string()
+      .trim()
+      .min(1)
+      .describe("Their name, as they gave it. Required — ask for it before calling this."),
+    contactEmail: emailSchema.describe(
+      "Their email. Required — the team has no other way to reach them.",
+    ),
+    contactPhone: z
+      .string()
+      .trim()
       .optional()
-      .describe("Their email, only if they have given it — do not invent one"),
+      .describe(
+        "Their phone number, only if they offered it. Ask once; never withhold the escalation " +
+          "over it, and never invent one.",
+      ),
   }),
   async run(input, ctx) {
     const reference = makeReference();
@@ -56,19 +82,35 @@ export const escalateToHuman = defineTool({
       reference,
       category: input.category,
       reason: input.reason,
-      contactEmail: input.contactEmail ?? null,
+      summary: input.summary,
+      contactName: input.contactName,
+      contactEmail: input.contactEmail,
+      contactPhone: input.contactPhone ?? null,
     });
-
-    const followUp = input.contactEmail
-      ? `The team will reply to ${input.contactEmail}. Do not promise a timeframe — none is published.`
-      : `Ask for their email so the team can reply, or point them to ${CONTACT_EMAIL}.`;
 
     return {
       content:
-        `Escalated as ${reference} (${input.category}). ${followUp} ` +
-        `Give them the reference ${reference}. Frame this as connecting them with the right ` +
-        `person, not as a failure, and do not apologise repeatedly.`,
-      ui: { kind: "escalation" as const, reference, reason: input.reason },
+        `Filed as ${reference} (${input.category}) for ${input.contactName} ` +
+        `<${input.contactEmail}>${input.contactPhone ? `, ${input.contactPhone}` : ""}. ` +
+        `The summary and the full conversation went with it, so they will not have to repeat ` +
+        `themselves. ` +
+        `Tell the user it is with the team, give them the reference ${reference}, and say they ` +
+        `will be contacted on the email they gave. Do NOT promise a timeframe — none is ` +
+        `published — and do not say anyone has been emailed or notified right now. ` +
+        `**Then stop working the problem.** Do not keep suggesting fixes or asking diagnostic ` +
+        `questions on this issue: it is handed over, and continuing to troubleshoot invites them ` +
+        `to keep talking to you instead of waiting for the person who can actually help. Answer ` +
+        `anything genuinely new, and otherwise let it rest. ` +
+        `They can also reach the team directly at ${CONTACT_EMAIL}. ` +
+        `Frame this as connecting them with the right person, not as a failure, and do not ` +
+        `apologise repeatedly.`,
+      ui: {
+        kind: "escalation" as const,
+        reference,
+        reason: input.reason,
+        contactName: input.contactName,
+        contactEmail: input.contactEmail,
+      },
     };
   },
 });

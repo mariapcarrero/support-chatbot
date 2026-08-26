@@ -127,12 +127,42 @@ describe("executeTool", () => {
   it("issues a quotable reference when escalating", async () => {
     const result = await executeTool(
       "escalate_to_human",
-      { category: "contractual", reason: "Wants a signed DPA" },
+      {
+        category: "contractual",
+        reason: "Wants a signed DPA",
+        summary: "Regulated lender doing vendor diligence; needs a DPA signed before proceeding.",
+        contactName: "Dana Reeves",
+        contactEmail: "dana@northstarins.com",
+      },
       ctx,
     );
     expect(result.isError).toBe(false);
     expect(result.content).toMatch(/CAD-[0-9A-F]{6}/);
     expect(result.ui).toMatchObject({ kind: "escalation" });
+  });
+
+  // No human watches this chat, so the escalation row IS the handoff. A row with no name or
+  // no email is one nobody can reply to — the user believes they are in a queue and nothing
+  // can reach them. Better to reject the call and make the model go back and ask.
+  it.each([
+    ["no contact name", { contactEmail: "dana@northstarins.com" }],
+    ["no contact email", { contactName: "Dana Reeves" }],
+    ["neither", {}],
+  ])("refuses to file an unreachable escalation: %s", async (_label, contact) => {
+    const result = await executeTool(
+      "escalate_to_human",
+      {
+        category: "contractual",
+        reason: "Wants a signed DPA",
+        summary: "Needs a DPA signed.",
+        ...contact,
+      },
+      ctx,
+    );
+    expect(result.isError).toBe(true);
+    // The message tells the model which field is missing, so it can ask rather than retry
+    // blindly — that is the whole reason validation lives in executeTool.
+    expect(result.content).toMatch(/contactName|contactEmail|required|invalid/i);
   });
 
   it("does not file a portal request without an email, and says so", async () => {
