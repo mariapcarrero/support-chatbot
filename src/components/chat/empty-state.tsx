@@ -1,10 +1,14 @@
-import { BadgeCheck, CalendarDays, Gauge, ShieldCheck } from "lucide-react";
+import { BadgeCheck, CalendarDays, Gauge, KeyRound, LifeBuoy, ShieldCheck } from "lucide-react";
 
 /**
  * Opening screen.
  *
- * The suggested prompts are not decoration — they map to the scenarios the bot is built
- * and evaluated against, so the first thing a visitor clicks is something it handles well.
+ * The suggested prompts are not decoration — there is one per scenario the bot is built and
+ * evaluated against, so whatever a visitor clicks first is something it handles well.
+ *
+ * All six are here on purpose. An earlier version showed four, which meant someone judging the
+ * bot by its own suggestions never saw portal access or escalation — two of the six, and the two
+ * that best show where it draws its lines.
  */
 const SUGGESTIONS = [
   {
@@ -27,6 +31,16 @@ const SUGGESTIONS = [
     label: "Security & model choice",
     prompt: "How do you choose which LLM to use, and how do you handle our data?",
   },
+  {
+    icon: KeyRound,
+    label: "Portal access",
+    prompt: "I can't get into the Cadre portal to see our agents and results.",
+  },
+  {
+    icon: LifeBuoy,
+    label: "Talk to a human",
+    prompt: "I need to speak to a real person about a contract question.",
+  },
 ] as const;
 
 export function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
@@ -37,8 +51,9 @@ export function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
       </div>
       <h1 className="text-2xl font-semibold tracking-tight">How can I help?</h1>
       <p className="mt-2 max-w-md text-sm text-fg-muted">
-        I can explain what Cadre AI does, check whether we work in your industry, score your AI
-        maturity, or get you booked in with a strategist.
+        I can explain what Cadre AI does, check whether we work in your industry, run a quick AI
+        maturity self-check, help with portal access, or get you to a strategist. If I don&rsquo;t
+        know something, I&rsquo;ll say so and pass you to someone who does.
       </p>
 
       <div className="mt-8 grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">

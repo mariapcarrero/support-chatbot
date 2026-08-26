@@ -11,7 +11,6 @@ import { MessageBubble } from "./message-bubble";
 
 export function Chat() {
   const { messages, send, stop, reset, isStreaming } = useChat();
-  const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pinnedToBottom = useRef(true);
 
@@ -28,16 +27,33 @@ export function Chat() {
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
+  /**
+   * Keep the newest content in view while a reply streams in.
+   *
+   * Scrolls the container directly rather than calling `scrollIntoView` on a sentinel: the
+   * sentinel sits behind the sticky composer, so "bring it into view" is satisfied while the
+   * last line of text is still hidden underneath. Setting `scrollTop` has no such ambiguity.
+   *
+   * `messages` is a new array on every token — `setMessages` maps over the previous one — so
+   * this runs per delta and the view tracks text as it arrives, not just when a turn ends.
+   */
   useEffect(() => {
-    if (pinnedToBottom.current) {
-      bottomRef.current?.scrollIntoView({ block: "end" });
-    }
+    if (!pinnedToBottom.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   const hasMessages = messages.length > 0;
 
+  // `h-dvh`, not `min-h-dvh`. With only a MINIMUM height the column grows to fit its content,
+  // the inner `overflow-y-auto` never has anything to overflow, and the window scrolls instead —
+  // so the scroll listener never fires and nothing follows the stream. Pinning the shell to the
+  // viewport is what makes the message list the scroller. Its `min-h-0` is the other half: a
+  // flex child will not shrink below its content without it, so `flex-1 overflow-y-auto` alone
+  // still expands rather than scrolling.
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex h-dvh flex-col">
       <header className="sticky top-0 z-10 border-b border-border bg-surface/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3">
           <div className="grid size-7 place-items-center rounded-lg bg-accent text-xs font-semibold text-accent-fg">
@@ -60,13 +76,12 @@ export function Chat() {
         </div>
       </header>
 
-      <div ref={scrollRef} className="flex flex-1 flex-col overflow-y-auto">
+      <div ref={scrollRef} className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {hasMessages ? (
           <div className="mx-auto w-full max-w-3xl space-y-5 px-4 py-6">
             {messages.map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}
-            <div ref={bottomRef} />
           </div>
         ) : (
           <EmptyState onPick={send} />
