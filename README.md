@@ -110,6 +110,60 @@ applied to itself.
 
 ---
 
+## Built with Claude Code
+
+The setup that shaped how this was built, and why each piece exists.
+
+**[`CLAUDE.md`](./CLAUDE.md)** — written against specific past failures, not as a description of
+the directory structure. "The prompt cache is a prefix match, so `KNOWLEDGE_BASE` being sorted is
+load-bearing." "`strict: true` must stay off — the complexity budget is shared across the whole
+tools array, so all five together return a 400 while each passes alone." "These two files must
+stay in sync." Every entry is there because getting it wrong cost real time. A file describing
+where things live would have prevented none of it.
+
+**[`plan.md`](./plan.md)** — scope decisions and their reasoning, including the ones that were
+reversed. An admin dashboard was ruled out to protect time for the evals; it was built later when
+that cost changed, and the reversal is recorded rather than edited away.
+
+**Subagents** ([`.claude/agents/`](./.claude/agents)) — three, each owning a contract that is easy
+to half-apply:
+
+| Agent | Owns |
+| --- | --- |
+| `kb-curator` | Knowledge docs. Verifies against cadreai.com **before** writing, reading raw HTML rather than a summary, and enforces the required `sources` field |
+| `eval-triager` | Diagnoses eval failures into buckets. Explicitly forbidden from fixing them, so the suite stays a specification rather than a description of current behaviour |
+| `tool-smith` | The five-part tool contract: Zod schema, handler, registry entry, tests, eval case |
+
+**Slash commands** ([`.claude/commands/`](./.claude/commands)) — `/eval`, `/add-knowledge`,
+`/ship`. `/ship` orders its stages by cost: typecheck, lint and unit tests are free and run first;
+the judge calibration and eval suite call the real API and run only behind a green build.
+
+**A `PostToolUse` hook** runs `tsc --noEmit` after every TypeScript edit, so a type break surfaces
+at the edit that caused it rather than at the next manual check.
+
+**Permissions** are allowlisted for read-only and routine commands, with `.env`, `.env.local` and
+`.env.*.local` explicitly denied — an agent should not be able to read a key it might echo.
+
+### Managing context
+
+The decisions that changed the working loop, rather than the ones that look tidy:
+
+- **Verification is scoped to blast radius.** A knowledge edit changes the cached system prompt,
+  which is technically global — and treating that as "run everything" collapses into running the
+  full suite for every change. Targeted runs are the default; the full suite is a ship gate.
+- **The judge is a cost decision.** It moved from Opus to Sonnet after measuring that it dominated
+  eval spend, on the reasoning that the deterministic assertions carry everything safety-critical.
+  `npm run eval:judge-check` exists because that trade needed a guard: an LLM judge can fail by
+  starting to pass everything, which turns a real regression into a green run.
+- **Suspect the harness before the product.** Two "production is broken" findings during this build
+  were bugs in the test script — one parsed for a `tool` SSE event when the protocol emits
+  `tool_start`/`tool_end`, the other sent no session cookie, so the server correctly refused to
+  replay history and it looked like memory loss.
+- **Sample before concluding.** Eval cases are model-graded and several are intermittent. A single
+  failure is noise; `2/5` is a finding. One "regression" cost six runs to disprove.
+
+---
+
 ## Verification
 
 **`npm test`** — 83 unit tests. Fast, offline, free. The one worth calling out asserts the
