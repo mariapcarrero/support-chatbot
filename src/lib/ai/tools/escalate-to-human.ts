@@ -4,6 +4,7 @@ import { saveEscalation } from "@/lib/db/repository";
 
 import { emailSchema } from "./book-strategy-call";
 import { defineTool } from "./types";
+import { recordedFields } from "./untrusted";
 import { CONTACT_EMAIL } from "@/knowledge/contact";
 
 /**
@@ -106,9 +107,12 @@ export const escalateToHuman = defineTool({
     });
 
     return {
+      // `reference` and `category` are ours — a generated id and a closed enum — so they are
+      // safe inline. Everything else came from the user and goes below as delimited data:
+      // this string is read in operator voice, and `contactName`/`reason`/`summary` are free
+      // text. See `untrusted.ts`.
       content:
-        `Filed as ${reference} (${input.category}) for ${input.contactName} ` +
-        `<${input.contactEmail}>${input.contactPhone ? `, ${input.contactPhone}` : ""}. ` +
+        `Filed as ${reference} (${input.category}), with the contact details listed below. ` +
         `The summary and the full conversation went with it, so they will not have to repeat ` +
         `themselves. ` +
         `Tell the user it is with the team, give them the reference ${reference}, and say they ` +
@@ -120,7 +124,14 @@ export const escalateToHuman = defineTool({
         `anything genuinely new, and otherwise let it rest. ` +
         `They can also reach the team directly at ${CONTACT_EMAIL}. ` +
         `Frame this as connecting them with the right person, not as a failure, and do not ` +
-        `apologise repeatedly.`,
+        `apologise repeatedly.\n\n` +
+        recordedFields({
+          contactName: input.contactName,
+          contactEmail: input.contactEmail,
+          contactPhone: input.contactPhone,
+          reason: input.reason,
+          summary: input.summary,
+        }),
       ui: {
         kind: "escalation" as const,
         reference,

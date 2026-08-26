@@ -4,6 +4,7 @@ import { CONTACT_URL } from "@/knowledge/contact";
 import { saveLead } from "@/lib/db/repository";
 
 import { defineTool } from "./types";
+import { recordedFields } from "./untrusted";
 
 /**
  * Loose on purpose. This validates shape, not deliverability — the goal is to catch the
@@ -51,15 +52,25 @@ export const bookStrategyCall = defineTool({
     });
 
     return {
+      // The recorded values are appended as delimited data rather than interpolated here.
+      // `topic` and `company` are free text from the user, and this string is read in
+      // operator voice — see `untrusted.ts`.
       content:
-        `Noted for ${input.name} (${input.email}) at ${input.company}. Topic: ${input.topic}. ` +
+        `Their details are recorded (listed below). ` +
         `This recorded their details only — it did NOT contact anyone and no call is booked. ` +
         `You must now send them to ${CONTACT_URL} and be clear that submitting that form is the ` +
         `step that actually reaches a strategist, and that they have to do it themselves. ` +
         `It asks for four quick things: name, email, a subject, and a short message — you may ` +
         `say that to lower the barrier, but do not recite exact field labels. ` +
         `Do NOT say a call is confirmed or scheduled, that they can "pick a time", or that the ` +
-        `team "will be in touch" — nothing reaches Cadre until they submit the form.`,
+        `team "will be in touch" — nothing reaches Cadre until they submit the form.\n\n` +
+        recordedFields({
+          name: input.name,
+          email: input.email,
+          company: input.company,
+          industry: input.industry,
+          topic: input.topic,
+        }),
       ui: {
         kind: "booking" as const,
         contactUrl: CONTACT_URL,

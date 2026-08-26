@@ -4,6 +4,7 @@ import { saveLead } from "@/lib/db/repository";
 
 import { emailSchema } from "./book-strategy-call";
 import { defineTool } from "./types";
+import { recordedFields } from "./untrusted";
 
 export const captureLead = defineTool({
   name: "capture_lead",
@@ -39,9 +40,19 @@ export const captureLead = defineTool({
     });
 
     return {
+      // Instructions first, then the user's own words as delimited data. Interpolating
+      // `interest` into this prose would put user-controlled text inside operator voice —
+      // see `untrusted.ts`.
       content:
-        `Noted ${input.name} (${input.email}) for follow-up. Interest: ${input.interest}. ` +
-        `Confirm briefly that someone will be in touch, and do not push for a call now.`,
+        `Recorded for follow-up. Confirm briefly that someone will be in touch, and do not ` +
+        `push for a call now. Read the details back only if it helps confirm them.\n\n` +
+        recordedFields({
+          name: input.name,
+          email: input.email,
+          company: input.company,
+          industry: input.industry,
+          interest: input.interest,
+        }),
       ui: { kind: "lead" as const, name: input.name, email: input.email },
     };
   },
