@@ -186,13 +186,13 @@ even if it misstates it in prose.
 
 Two suites, deliberately separate.
 
-**`npm test`** — 76 unit tests. Fast, offline, free, run constantly. Covers the deterministic
+**`npm test`** — 83 unit tests. Fast, offline, free, run constantly. Covers the deterministic
 scorer (including an exhaustive sweep of all 3,125 inputs), tool schema validation and error
 paths, the SSE codec, the rate limiter, and a **prompt-determinism test** that asserts the
 system prompt is byte-identical across renders. That last one guards a failure with no visible
 symptom: one interpolated timestamp silently drops the cache hit rate to zero.
 
-**`npm run eval`** — 24 cases against the real API, each asserted twice: deterministic checks
+**`npm run eval`** — 25 cases against the real API, each asserted twice: deterministic checks
 (was the right tool called, does a forbidden regex appear) and a Claude judge against a rubric.
 A case passes only if both agree. Bundling these into `npm test` would make the fast suite slow,
 billable, and non-deterministic, and people would stop running it.
@@ -238,7 +238,7 @@ Worth recording because the split is instructive.
 2. Streaming agent loop, SSE protocol, typed error handling
 3. Tools, deterministic scoring, Drizzle schema, repository
 4. UI — streaming, tool activity, result cards, empty state
-5. Eval harness, 24 cases, judge
+5. Eval harness, 25 cases, judge
 6. Deploy to Vercel + Neon, smoke test
 7. Reconcile every knowledge document against cadreai.com; remove what is not published
 8. `/admin` ops inbox behind basic auth; `/api/health?probe=1` deploy check
