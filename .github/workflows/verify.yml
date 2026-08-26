@@ -36,10 +36,13 @@ jobs:
       # force-migrated to Node 24 with a warning on every run.
       - uses: actions/checkout@v5
 
+      # No `cache: npm`. A restored npm cache is the one part of this job that differs from a
+      # clean local `npm ci`, which succeeds — so it is the first variable to remove. The cost
+      # is a slower install; the benefit is a job that either works or fails for a reason that
+      # is actually about this repository.
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
 
       # Both steps below tee their output into the job summary on failure.
       #
@@ -51,12 +54,9 @@ jobs:
         run: |
           set -o pipefail
           npm ci 2>&1 | tee /tmp/install.log || {
-            {
-              echo '### `npm ci` failed'
-              echo '```'
-              tail -50 /tmp/install.log
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
+            # `::error::` emits an annotation, which is readable from the public API. The job
+            # summary is not: the previous attempt wrote there and the reason stayed invisible.
+            echo "::error::npm ci failed -- $(tail -12 /tmp/install.log | tr '\n' ' | ' | cut -c1-900)"
             exit 1
           }
 
@@ -64,11 +64,6 @@ jobs:
         run: |
           set -o pipefail
           npm run verify 2>&1 | tee /tmp/verify.log || {
-            {
-              echo '### `npm run verify` failed'
-              echo '```'
-              tail -80 /tmp/verify.log
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::verify failed -- $(tail -20 /tmp/verify.log | tr '\n' ' | ' | cut -c1-900)"
             exit 1
           }
