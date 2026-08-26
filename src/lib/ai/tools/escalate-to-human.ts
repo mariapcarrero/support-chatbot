@@ -49,17 +49,29 @@ export const escalateToHuman = defineTool({
       .trim()
       .min(1)
       .describe("What the user is asking for, in one line, written for the colleague picking it up"),
+    /**
+     * Optional on purpose, and this is the second attempt at it.
+     *
+     * As a required field the model stalled on it: given a name, an email and "a contract
+     * issue", it asked "can you tell me briefly what it's about, so I can pass along the
+     * right context?" and filed nothing. Instructing it not to do that worked in the eval —
+     * whose opening turn is detailed — and kept failing in production, whose opening turn is
+     * vague. A required field is a thing to go and fetch, and no wording reliably beats that.
+     *
+     * So the blocker is gone: the handler falls back to `reason`, the transcript is filed
+     * regardless, and a richer summary is written when there is something to write.
+     */
     summary: z
       .string()
       .trim()
-      .min(1)
+      .optional()
       .describe(
         "Short summary of the conversation so the user does not have to repeat themselves: " +
           "the problem, what they are ultimately trying to achieve, and anything already " +
           "suggested or ruled out. Two or three sentences. " +
-          "Write it from what has ALREADY been said — 'wants to discuss a contract issue, no " +
-          "detail given' is a perfectly good summary. Never ask a further question just to " +
-          "enrich this field; the full transcript is filed alongside it anyway.",
+          "Write it from what has ALREADY been said, and omit it entirely rather than asking " +
+          "a question to fill it in. The full transcript is filed alongside regardless, so a " +
+          "thin summary costs nothing and a delayed escalation costs the handoff.",
       ),
     contactName: z
       .string()
@@ -85,7 +97,9 @@ export const escalateToHuman = defineTool({
       reference,
       category: input.category,
       reason: input.reason,
-      summary: input.summary,
+      // Falls back to the one-line ask, so the column is never empty even when the model
+      // had nothing to summarize beyond what it already recorded.
+      summary: input.summary?.trim() || input.reason,
       contactName: input.contactName,
       contactEmail: input.contactEmail,
       contactPhone: input.contactPhone ?? null,
