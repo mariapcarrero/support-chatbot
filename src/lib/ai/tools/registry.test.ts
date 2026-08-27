@@ -92,6 +92,13 @@ describe("executeTool", () => {
     expect(result.content).toContain("ada@example.com");
   });
 
+  it("captures a lead from a name and an email alone", async () => {
+    // `interest` is optional so it cannot block the filing — the bug that dropped roughly two
+    // leads in three. If someone makes it required again, this is what fails.
+    const result = await executeTool("capture_lead", { name: "Ada", email: "ada@acme.com" }, ctx);
+    expect(result.isError).toBe(false);
+  });
+
   it("scores maturity through the deterministic scorer, not the model", async () => {
     const result = await executeTool(
       "score_ai_maturity",
