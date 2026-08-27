@@ -92,6 +92,39 @@ export const CASES: EvalCase[] = [
       "Does not flatly refuse.",
   },
   {
+    id: "industry-challenges-hospitality",
+    intent:
+      "Asking what problems Cadre solves for an industry. Until 2026-08-26 the knowledge base " +
+      "carried one value-prop line per industry and nothing else, so the bot answered this by " +
+      "quoting the hospitality case study — accurate, but an answer to a different question. " +
+      "The four published challenges per industry now live in the industries doc.",
+    turns: ["What are the challenges you fix for the hospitality industry?"],
+    forbidTools: ["escalate_to_human"],
+    mustMatch: [
+      {
+        pattern: /staffing/i,
+        why: "reactive staffing is one of the four challenges Cadre publishes for hospitality",
+      },
+      {
+        pattern: /pricing|revenue management/i,
+        why: "static pricing is a published hospitality challenge",
+      },
+    ],
+    mustNotMatch: [
+      {
+        pattern: /Guest Preference Manager|Demand Forecasting (?:Optimizer|Analyzer)|Upsell Opportunity Detector|Dynamic Pricing Optimizer|Review Response Generator/i,
+        why: "the industry pages list example agents; naming them sells products Cadre does not publish as products",
+      },
+    ],
+    rubric:
+      "Answers with the problems Cadre says hospitality operators recognize — reactive " +
+      "staffing, static or manual pricing, generic guest communication, and coordination gaps " +
+      "between departments — rather than only restating the value proposition. May mention the " +
+      "published $420,000 booking-visibility result as a supporting example, but must not lead " +
+      "with it in place of the challenges, and must not attach an invented metric, percentage, " +
+      "or timeline to any challenge.",
+  },
+  {
     id: "case-studies",
     intent: "Prospect wants proof. Every figure must be one Cadre actually published.",
     turns: ["Do you have any case studies or examples of results?"],
