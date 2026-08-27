@@ -14,6 +14,19 @@ interface ComposerProps {
 
 const MAX_TEXTAREA_PX = 200;
 
+/**
+ * `text-base` (16px) on mobile, dropping to `text-sm` only at `sm:`.
+ *
+ * Not a typography preference. iOS Safari force-zooms the page whenever a focused input renders
+ * below 16px, and it does not zoom back out on blur — so the layout ends up scaled and clipped
+ * horizontally, which reads as a broken page rather than as a zoom. The other way to stop it,
+ * `maximum-scale=1` on the viewport, takes pinch-zoom away from everyone and is an accessibility
+ * regression. Sizing the text correctly costs nothing, so do not unify this back to `text-sm`.
+ */
+const TEXTAREA_CLASSES =
+  "max-h-[200px] flex-1 resize-none bg-transparent py-1.5 text-base outline-none " +
+  "placeholder:text-fg-subtle sm:text-sm";
+
 export function Composer({ onSend, onStop, isStreaming }: ComposerProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -38,7 +51,7 @@ export function Composer({ onSend, onStop, isStreaming }: ComposerProps) {
   const canSend = value.trim().length > 0 && !overLimit && !isStreaming;
 
   return (
-    <div className="border-t border-border bg-surface/80 backdrop-blur">
+    <div className="border-t border-border bg-surface/80 pb-[env(safe-area-inset-bottom)] backdrop-blur">
       <div className="mx-auto w-full max-w-3xl px-4 py-3">
         <div
           className={cn(
@@ -59,9 +72,9 @@ export function Composer({ onSend, onStop, isStreaming }: ComposerProps) {
                 submit();
               }
             }}
-            placeholder="Ask about services, pricing, or book a call…"
+            placeholder="Ask about services or book a call…"
             aria-label="Message"
-            className="max-h-[200px] flex-1 resize-none bg-transparent py-1.5 text-sm outline-none placeholder:text-fg-subtle"
+            className={TEXTAREA_CLASSES}
           />
 
           {isStreaming ? (
