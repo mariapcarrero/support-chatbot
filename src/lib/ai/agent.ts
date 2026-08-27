@@ -44,7 +44,7 @@ export interface AgentOutcome {
  * all three, and the loop is simple enough to reason about in a review.
  *
  * The generator's return value carries the messages to persist; callers get it from the
- * `value` of the final `next()`, or via `collectOutcome`.
+ * `value` of the final `next()`.
  */
 export async function* runAgent(turn: AgentTurn): AsyncGenerator<ChatEvent, AgentOutcome> {
   const client = getAnthropicClient();
@@ -84,7 +84,7 @@ export async function* runAgent(turn: AgentTurn): AsyncGenerator<ChatEvent, Agen
     }
 
     const message = await stream.finalMessage();
-    usage = message.usage;
+    usage = addUsage(usage, message.usage);
     messages.push({ role: "assistant", content: message.content });
     newMessages.push({ role: "assistant", content: message.content });
 
@@ -131,6 +131,50 @@ export async function* runAgent(turn: AgentTurn): AsyncGenerator<ChatEvent, Agen
     retryable: true,
   };
   return { newMessages, usage };
+}
+
+/**
+ * Sum the token counters across every round trip in one turn.
+ *
+ * A turn that calls tools is several API calls, and this used to overwrite `usage` on each
+ * iteration — so the persisted row carried only the final call's numbers. That understates
+ * what the turn cost, and it hides the metric most worth watching: `cache_read_input_tokens`
+ * is how you check the prompt cache is actually hitting (see CLAUDE.md), and reading it from
+ * the last call alone says nothing about the calls before it. A turn that missed the cache
+ * three times and hit it once looked like a clean hit.
+ *
+ * Only the four token counters are additive. `service_tier`, `inference_geo` and the
+ * breakdown objects each describe one request, so the most recent call's values are carried
+ * forward rather than summed into something the API never reported.
+ */
+export function addUsage(
+  total: Anthropic.Usage | null,
+  next: Anthropic.Usage,
+): Anthropic.Usage {
+  if (!total) return next;
+  return {
+    ...next,
+    input_tokens: total.input_tokens + next.input_tokens,
+    output_tokens: total.output_tokens + next.output_tokens,
+    cache_creation_input_tokens: addCounters(
+      total.cache_creation_input_tokens,
+      next.cache_creation_input_tokens,
+    ),
+    cache_read_input_tokens: addCounters(
+      total.cache_read_input_tokens,
+      next.cache_read_input_tokens,
+    ),
+  };
+}
+
+/**
+ * Adds two counters the API reports as nullable. Null means "not reported", which is not the
+ * same as zero — so two nulls stay null rather than becoming a 0 that looks like a measured
+ * cache miss.
+ */
+function addCounters(a: number | null, b: number | null): number | null {
+  if (a === null && b === null) return null;
+  return (a ?? 0) + (b ?? 0);
 }
 
 /**
