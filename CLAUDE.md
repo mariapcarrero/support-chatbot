@@ -272,6 +272,58 @@ email, which has no room for a sentence.
 3. `npm run eval` passes — **required** for any change to the prompt, knowledge base, or
    tools. Unit tests cannot tell you the bot got worse at its job.
 4. New knowledge or a new tool has a matching eval case.
+5. CI (`.github/workflows/verify.yml`) is green. It runs `npm run verify` on push and PR —
+   typecheck, lint, unit tests — and deliberately does **not** run evals: they cost money per
+   case and are model-graded, so wiring them to every push would bill on every commit and
+   produce red builds that mean "the model phrased it differently this time". **A green check
+   means the code compiles, lints, and its deterministic behaviour is intact. It does not mean
+   the bot still answers correctly.** Those are different questions and only one of them is
+   cheap.
+
+## Deploying
+
+**Push to `main` and it ships.** There is no separate deploy step and no staging environment:
+`main` is production, serving <https://support-chatbot-lime.vercel.app> from
+`github.com/mariapcarrero/support-chatbot`. Whether branches get preview deployments depends
+on the Vercel project settings and is not recorded here — check the dashboard rather than
+assuming either way.
+
+`npm run vercel-build` is what Vercel runs — `scripts/migrate.ts` applies pending Drizzle
+migrations, **then** `next build`. Migrations run on the deploy rather than from a laptop
+because the Neon connection string is marked Sensitive in Vercel and is write-only; it cannot
+be pulled down to migrate by hand. It also means the schema can never lag the code that
+expects it.
+
+**Environment variables do not reach a running deployment.** Setting one in the Vercel
+dashboard changes nothing until the next deploy. That is how the app spent a day serving
+Anthropic while this file stated it was on OpenRouter.
+
+### Verify after every deploy
+
+```bash
+curl -s https://support-chatbot-lime.vercel.app/api/health
+```
+
+Three fields, each of which has silently been wrong at least once:
+
+- **`provider`** — the provider you believe you are on. Also confirms the model id resolved
+  correctly (`anthropic/claude-sonnet-5` under OpenRouter, bare under the first-party API).
+- **`databaseConfigured` / `databaseSource`** — `false` means leads and escalations are going
+  to an in-process store that dies with the instance, and nothing errors. `databaseSource`
+  names which of the four connection variables won.
+- **`keyConfigured`** — necessary, not sufficient. It proves a string is set, nothing more.
+
+Then once, deliberately:
+
+```bash
+curl -s 'https://support-chatbot-lime.vercel.app/api/health?probe=1'
+```
+
+`modelReachable` is the field that matters. On 2026-08-25 a key hit its spend cap, every chat
+request failed with a 400, and this endpoint went on reporting `ok` for hours — because a
+configured key and a working key are not the same thing. The probe is one token in and one
+token out, so it costs almost nothing even on the capped OpenRouter key, and it is opt-in so
+uptime checks can poll the default for free.
 
 ## Working on this repo
 
@@ -280,7 +332,23 @@ email, which has no room for a sentence.
   docs hold *facts*. Blurring that makes both harder to change.
 - When an eval fails, first ask whether the test is wrong. Do not tune the prompt to make one
   case pass — that turns the suite into a mirror of current behaviour instead of a spec.
+- **The judge cannot see tool arguments.** `evals/run.ts` writes `[called: escalate_to_human]`
+  into the transcript — the tool *name* and nothing else. So a rubric asking whether a field
+  was captured is ungradeable: the judge sees only what the assistant said afterwards, and
+  marks a silent-but-correct tool call as a miss. On 2026-08-26 `unanswerable-escalates`
+  failed for "did not capture the phone number" when the transcript could not have shown it
+  either way. Before believing that kind of failure, check the handler and the schema — or
+  make the transcript record arguments, which is the real fix and would change what every
+  judged case sees.
 - `.env.local` is never committed. `.env.example` documents the variables.
+- **Treat the numbers and claims in this file as dated, not current.** Four were wrong on
+  2026-08-26: the `sources` field described as an unbuilt discipline when the build already
+  enforced it four ways; the prompt given as "~12k tokens" when the cached prefix measured
+  20,615; the same stale figure again in `plan.md`; and "the deployed app uses OpenRouter"
+  while production was serving Anthropic. Every one of them read as established fact, and not
+  one carried a date. **Measure before you rely on a number here, and when you write one down,
+  say what you measured and when.** This file drifts exactly the way the knowledge base drifts
+  — and unlike the knowledge base, nothing tests it.
 
 ## Knowledge base accuracy — read before editing any doc
 
