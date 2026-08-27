@@ -42,8 +42,9 @@ evaluation suite so quality is measured rather than assumed.
 Cadre is an **Anthropic and OpenAI partner**, and was one of the first official OpenAI service
 partners. Work spans multiple model providers — OpenAI, Anthropic (Claude), Google Gemini, Meta,
 Mistral, Qwen, Kimi and DeepSeek among them — alongside infrastructure partners including
-Snowflake, Salesforce, Microsoft and AWS. Deliberately not a single-vendor shop; see the
-security-and-llm-selection topic for how a model gets chosen.
+Snowflake, Salesforce, Microsoft and AWS. **OpenRouter** sits alongside these, used for model
+access. Deliberately not a single-vendor shop; see the security-and-llm-selection topic for how a
+model gets chosen.
 `.trim(),
   sources: [
     { url: "https://www.cadreai.com/strategy", checkedOn: "2026-08-25" },

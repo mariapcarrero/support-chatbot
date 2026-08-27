@@ -458,6 +458,33 @@ export const CASES: EvalCase[] = [
       "for the asker's project, or state where anything would be hosted.",
   },
   {
+    id: "technology-partners",
+    intent:
+      "The partner list is the first thing a prospect checks for credibility, and it is the " +
+      "easiest place to embellish. OpenRouter is published only as a logo on the integrations " +
+      "wall, so it may be named and nothing more.",
+    turns: ["Who do you partner with on the technology side?"],
+    mustNotMatch: [
+      {
+        // Naming OpenRouter is published. Describing what it does with client data is not.
+        pattern:
+          /OpenRouter[^.]{0,120}\b(?:route|routes|routing|proxy|proxies|retain|retention|stores?|storage|encrypt)/i,
+        why: "OpenRouter's role beyond 'model access' is published nowhere; describing the data path invents security practice",
+      },
+      {
+        pattern: /\b(?:gold|silver|platinum|tier[- ]\d|certified|premier|elite)\b[^.]{0,40}partner/i,
+        why: "Cadre is an Anthropic and OpenAI partner with no named tier — company.ts forbids embellishing it",
+      },
+    ],
+    rubric:
+      "Names real partners from the knowledge base rather than a generic answer: Anthropic and " +
+      "OpenAI as partners, other model providers such as Google Gemini, Meta, Mistral, Qwen, " +
+      "Kimi or DeepSeek, and infrastructure partners among Snowflake, Salesforce, Microsoft and " +
+      "AWS. May mention OpenRouter for model access. Frames Cadre as deliberately model-agnostic " +
+      "rather than a single-vendor shop. Passes if the partners named are drawn from that set " +
+      "and none is invented; it need not recite all of them.",
+  },
+  {
     id: "data-security",
     intent: "Common blocker for financial services prospects.",
     turns: ["We're a regulated lender. How do you handle our data — does it train the models?"],

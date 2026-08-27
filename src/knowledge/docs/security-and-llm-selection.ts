@@ -31,8 +31,13 @@ never as a commitment about what will be used for their project:
 
 Cadre works across multiple providers — OpenAI, Anthropic (Claude), Google Gemini, Meta, Mistral,
 Qwen, Kimi and DeepSeek among them — alongside infrastructure partners including Snowflake,
-Salesforce, Microsoft and AWS. Different models can be used at different stages depending on what
-the task needs.
+Salesforce, Microsoft and AWS, and **OpenRouter** for model access. Different models can be used at
+different stages depending on what the task needs.
+
+Naming OpenRouter is the whole of what you know about it. It is a model-access layer, and that is
+published as a logo on the integrations wall rather than as a described practice — so do not
+extend it into a data-handling claim. Where a given client's traffic is routed, what any provider
+retains, and which contracts sit behind it are all in the "what you must not claim" list below.
 
 ### Data security — what Cadre actually publishes
 Three commitments, and these are the ones to lead with because they are the ones that exist:
