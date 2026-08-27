@@ -84,8 +84,8 @@ Neon Postgres — conversations, messages, leads, escalations, assessments
 
 ### Four decisions worth knowing
 
-**No RAG.** The knowledge base is ~12k tokens. Vector search over 12k tokens buys nothing and
-adds an embedding pipeline, a round trip, and a retrieval-miss failure mode. The whole base
+**No RAG.** The knowledge base is ~16.5k tokens (measured 2026-08-26). Vector search over that
+buys nothing and adds an embedding pipeline, a round trip, and a retrieval-miss failure mode. The whole base
 goes into a prompt-cached system block instead. The threshold for revisiting is written down
 in [plan.md](./plan.md): ~30 documents, or the moment per-client knowledge appears.
 

@@ -62,8 +62,9 @@ export async function* runAgent(turn: AgentTurn): AsyncGenerator<ChatEvent, Agen
       max_tokens: MAX_OUTPUT_TOKENS,
       output_config: { effort: EFFORT },
       // Marking the system block ephemeral caches the whole static prefix (tools + system).
-      // It is ~12k tokens resent on every turn of every conversation, so this is the single
-      // highest-leverage cost decision in the app.
+      // Measured at 23,954 tokens on 2026-08-26; it grows with every knowledge doc, so
+      // re-measure rather than trust that figure. Resent on every turn of every conversation,
+      // which is what makes this the single highest-leverage cost decision in the app.
       system: [
         { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
       ],

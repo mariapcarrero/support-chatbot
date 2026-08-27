@@ -44,7 +44,7 @@ apology.
 | --- | --- |
 | Real calendar integration | Calendly/Google OAuth is integration plumbing, not architecture. The booking tool captures the lead and returns the scheduling link — honest about what it did. |
 | Real portal authentication | The bot cannot authenticate anyone, and building fake auth for a demo would be worse than not building it. It explains the process and files a request. |
-| Vector RAG | See below — the knowledge base is ~12k tokens. |
+| Vector RAG | See below — the knowledge base is ~16.5k tokens. |
 | Accounts, i18n, voice, file upload | No scenario in the brief needs them. |
 
 **One reversal.** An admin dashboard was on this list, on the grounds that a CRUD UI would eat
@@ -135,8 +135,8 @@ changing under a correct document remains something a person has to notice.
 
 ### No RAG, on purpose
 
-The entire knowledge base is ~12k tokens. Vector search over 12k tokens adds an embedding
-pipeline, a network round trip, and a retrieval-miss failure mode to buy nothing — the model
+The entire knowledge base is ~16.5k tokens (measured 2026-08-26). Vector search over that adds
+an embedding pipeline, a network round trip, and a retrieval-miss failure mode to buy nothing — the model
 can simply hold all of it. So the whole base goes into a prompt-cached system block: one
 round trip, no retrieval failures, and cached reads cost roughly a tenth of fresh input.
 

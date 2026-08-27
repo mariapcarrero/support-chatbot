@@ -11,7 +11,7 @@ import { KNOWLEDGE_BASE } from "@/knowledge";
  * these evals check, a judge that cannot check it is close to useless.
  *
  * Sent as a cached prefix, so across a run this costs roughly one write plus cheap reads
- * rather than 12k fresh tokens per case.
+ * rather than the whole knowledge base (~16.5k tokens, measured 2026-08-26) fresh per case.
  */
 const GROUND_TRUTH = KNOWLEDGE_BASE.map(
   (doc) => `## ${doc.title}\n\n${doc.body}`,

@@ -143,8 +143,8 @@ read back — measured at `8371ae3`, before the knowledge-base rewrite; the equi
   404 **HTML page** — the SDK error is a wall of markup, not a JSON message.
 - **Cost warning, now enforced.** Eval cases against OpenRouter are roughly an order of
   magnitude more expensive than on the Anthropic key, and that key has a hard,
-  non-rechargeable cap — the 26-case suite is not merely expensive there, it does not fit
-  inside the balance. `evals/budget-guard.ts` refuses more than three cases under
+  non-rechargeable cap — the full suite (31 cases on 2026-08-27) is not merely expensive there,
+  it does not fit inside the balance. `evals/budget-guard.ts` refuses more than three cases under
   `LLM_PROVIDER=openrouter`, prints the cheap-key command instead, and exits 1. An explicit
   `--allow-openrouter-full-run` overrides it and still says what it will cost. This used to
   be a paragraph here, which is not a safeguard a running system can read.

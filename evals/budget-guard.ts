@@ -11,12 +11,14 @@ import type { Provider } from "@/lib/ai/client";
  *
  * ## The arithmetic
  *
- * A case costs roughly $0.10–0.13 on the Anthropic key (measured: a 20,615-token cached
- * prefix, ~4 model calls plus one judge call per case, at Sonnet 5 intro rates). CLAUDE.md
+ * A case costs roughly $0.10–0.13 on the Anthropic key (~4 model calls plus one judge call per
+ * case, at Sonnet 5 intro rates). That range was measured against a 20,615-token cached prefix,
+ * which is 23,954 as of 2026-08-26 — so treat it as a floor, not a current quote. CLAUDE.md
  * puts OpenRouter at roughly an order of magnitude more, so call it ~$1 per case against a
  * hard, **non-rechargeable** $5 cap.
  *
- * That is the whole point. The 26-case suite is not "expensive" there — it is impossible. It
+ * That is the whole point. The full suite (31 cases on 2026-08-27) is not "expensive" there —
+ * it is impossible. It
  * would drain the balance somewhere around the fifth case and die mid-run, leaving no way to
  * validate anything afterwards, and no way to top the key up.
  *
