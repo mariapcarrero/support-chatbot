@@ -21,7 +21,7 @@ npm run dev                    # http://localhost:3000
 
 ```bash
 npm run verify     # typecheck + lint + unit tests
-npm run eval       # 25 cases against the real API (costs money, ~1 min)
+npm run eval       # 31 cases against the real API (costs money, ~1 min)
 ```
 
 ---
@@ -166,11 +166,11 @@ The decisions that changed the working loop, rather than the ones that look tidy
 
 ## Verification
 
-**`npm test`** — 83 unit tests. Fast, offline, free. The one worth calling out asserts the
+**`npm test`** — 102 unit tests. Fast, offline, free. The one worth calling out asserts the
 system prompt renders byte-identically every time: a single interpolated timestamp would
 silently drop the prompt cache hit rate to zero, with no symptom except the bill.
 
-**`npm run eval`** — 25 cases through the real agent, each asserted twice: deterministic
+**`npm run eval`** — 31 cases through the real agent, each asserted twice: deterministic
 checks (right tool called? forbidden pattern absent?) plus a Claude judge against a rubric. A
 case passes only if both agree. The adversarial half covers prompt injection, system-prompt
 extraction, demands for an exact quote, discount requests, fabricated account lookups,

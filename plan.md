@@ -26,10 +26,11 @@ Everything below follows from those two.
 ## Scope decisions
 
 ### What the bot knows
-A curated knowledge base of twelve documents in `src/knowledge/docs/`, covering the six
-scenarios in the brief plus pricing, case studies, engagement model, and an FAQ. This is the
-**only** source it may use for factual claims — the system prompt says so explicitly, and the
-eval suite tests it with adversarial cases.
+A curated knowledge base of thirteen documents in `src/knowledge/docs/`, covering the six
+scenarios in the brief plus pricing, case studies, the engagement model, the department axis,
+what happens after an engagement, and an FAQ. This is the **only** source it may use for
+factual claims — the system prompt says so explicitly, and the eval suite tests it with
+adversarial cases.
 
 ### Where it draws the line
 The bot escalates rather than stretching on: contracts and compliance artifacts (DPAs, SOC 2,
@@ -186,13 +187,13 @@ even if it misstates it in prose.
 
 Two suites, deliberately separate.
 
-**`npm test`** — 83 unit tests. Fast, offline, free, run constantly. Covers the deterministic
+**`npm test`** — 102 unit tests. Fast, offline, free, run constantly. Covers the deterministic
 scorer (including an exhaustive sweep of all 3,125 inputs), tool schema validation and error
 paths, the SSE codec, the rate limiter, and a **prompt-determinism test** that asserts the
 system prompt is byte-identical across renders. That last one guards a failure with no visible
 symptom: one interpolated timestamp silently drops the cache hit rate to zero.
 
-**`npm run eval`** — 25 cases against the real API, each asserted twice: deterministic checks
+**`npm run eval`** — 31 cases against the real API, each asserted twice: deterministic checks
 (was the right tool called, does a forbidden regex appear) and a Claude judge against a rubric.
 A case passes only if both agree. Bundling these into `npm test` would make the fast suite slow,
 billable, and non-deterministic, and people would stop running it.
