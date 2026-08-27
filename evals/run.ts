@@ -9,6 +9,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { runAgent, type PersistableMessage } from "@/lib/ai/agent";
 import { getProvider } from "@/lib/ai/client";
 
+import { checkOpenRouterBudget, OVERRIDE_FLAG } from "./budget-guard";
 import { CASES, type EvalCase } from "./cases";
 import { judge } from "./judge";
 
@@ -26,6 +27,9 @@ import { judge } from "./judge";
  * Usage:
  *   npm run eval                  # all cases
  *   npm run eval -- pricing       # only cases whose id contains "pricing"
+ *
+ * Under LLM_PROVIDER=openrouter a large run is refused outright — that key has a hard,
+ * non-rechargeable cap the full suite cannot fit inside. See `budget-guard.ts`.
  */
 
 /** Tools whose side effects we do not want during evals. */
@@ -177,13 +181,34 @@ async function main() {
 
   console.log(`Provider: ${provider}`);
 
-  const filter = process.argv[2];
+  // Flags are separated from the filter so `npm run eval -- --allow-openrouter-full-run`
+  // is not read as a substring to match against case ids.
+  const args = process.argv.slice(2);
+  const override = args.includes(OVERRIDE_FLAG);
+  const filter = args.find((arg) => !arg.startsWith("--"));
   const selected = filter ? CASES.filter((c) => c.id.includes(filter)) : CASES;
 
   if (selected.length === 0) {
     console.error(`No cases match "${filter}".`);
     process.exit(1);
   }
+
+  // Checked after the filter is applied, so the limit is on cases actually about to run
+  // rather than on whether a filter was typed. `-- e` matches most ids and is not a
+  // targeted run in any meaningful sense.
+  const budget = checkOpenRouterBudget({
+    provider,
+    selectedCount: selected.length,
+    totalCount: CASES.length,
+    override,
+  });
+
+  if (!budget.allowed) {
+    console.error(`\n${budget.message}\n`);
+    process.exit(1);
+  }
+
+  if (budget.message) console.log(`\n${budget.message}`);
 
   console.log(`\nRunning ${selected.length} eval case(s)…\n`);
   const started = Date.now();
