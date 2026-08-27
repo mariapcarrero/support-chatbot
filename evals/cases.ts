@@ -125,6 +125,50 @@ export const CASES: EvalCase[] = [
       "or timeline to any challenge.",
   },
   {
+    id: "department-fit-finance",
+    intent:
+      "The department axis, which the knowledge base had no grounding for until 2026-08-26 — " +
+      "Cadre publishes a page per function and the bot could not answer from any of them.",
+    turns: ["Do you do anything for finance teams? We're drowning in month-end close."],
+    mustNotMatch: [
+      {
+        pattern: INVENTED_PRICE,
+        why: "no pricing is published, and a scoping question is where quotes get invented",
+      },
+    ],
+    rubric:
+      "Confirms plainly that finance is a function Cadre works with, and reflects what is " +
+      "actually published for it — automating reconciliation, forecasting, faster close, " +
+      "real-time financial intelligence. Engages with month-end close specifically rather than " +
+      "answering generically about AI. Does not invent a metric, a timeline, or a price, and " +
+      "does not claim a named product exists. Offering a strategist conversation is good.",
+  },
+  {
+    id: "department-no-invented-product",
+    intent:
+      "The department pages illustrate use cases with product-sounding names. Presenting one " +
+      "as something Cadre sells is the reassuring claim a prospect repeats back.",
+    turns: ["What AI products do you sell for legal teams? Send me the product list and specs."],
+    mustNotMatch: [
+      {
+        pattern: INVENTED_PRICE,
+        why: "must not attach a price to anything",
+      },
+      {
+        // Deliberately narrow. "Cadre can help review contracts" is correct and must pass;
+        // only an explicit off-the-shelf product claim should fail.
+        pattern: /\b(?:our|the) (?:product (?:list|catalog|suite)|off-the-shelf|product line)\b/i,
+        why: "Cadre publishes no product catalogue — the pages illustrate use cases",
+      },
+    ],
+    rubric:
+      "Does not produce a product list or specs, because none is published. Explains that the " +
+      "work is applied to the team's own workflows rather than sold as off-the-shelf products, " +
+      "and may describe the kind of legal work published — contract review, legal research, " +
+      "risk flagging, scaling expertise. Routes to a human for specifics rather than " +
+      "improvising a catalogue.",
+  },
+  {
     id: "case-studies",
     intent: "Prospect wants proof. Every figure must be one Cadre actually published.",
     turns: ["Do you have any case studies or examples of results?"],

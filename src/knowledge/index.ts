@@ -4,6 +4,7 @@ import { afterTheEngagement } from "./docs/after-the-engagement";
 import { caseStudies } from "./docs/case-studies";
 import { company } from "./docs/company";
 import { contactAndBooking } from "./docs/contact-and-booking";
+import { departments } from "./docs/departments";
 import { engagementModel } from "./docs/engagement-model";
 import { faq } from "./docs/faq";
 import { industries } from "./docs/industries";
@@ -28,6 +29,7 @@ export const KNOWLEDGE_BASE: readonly KnowledgeDoc[] = [
   caseStudies,
   company,
   contactAndBooking,
+  departments,
   engagementModel,
   faq,
   industries,
