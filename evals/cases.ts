@@ -169,6 +169,41 @@ export const CASES: EvalCase[] = [
       "improvising a catalogue.",
   },
   {
+    id: "department-challenges-technology",
+    intent:
+      "The department mirror of industry-challenges-hospitality. The doc carried a value-prop " +
+      "line per function and only gestured at the problems, so 'what would you do for my team?' " +
+      "got the pitch rather than the four challenges the page actually publishes.",
+    turns: ["What problems do you actually solve for an engineering team?"],
+    forbidTools: ["escalate_to_human"],
+    mustMatch: [
+      {
+        pattern: /code review|pull request/i,
+        why: "code review bottlenecks is the first challenge Cadre publishes for technology",
+      },
+      {
+        pattern: /incident|technical debt|documentation/i,
+        why: "at least one of the other three published technology challenges should appear",
+      },
+    ],
+    mustNotMatch: [
+      {
+        pattern: INVENTED_PRICE,
+        why: "no pricing is published",
+      },
+      {
+        pattern: /\b\d{1,3}\s?% (?:faster|fewer|less|reduction|improvement)/i,
+        why: "the department pages publish no metrics; attaching one invents a commitment",
+      },
+    ],
+    rubric:
+      "Names the problems Cadre publishes for technology teams — code review bottlenecks, " +
+      "chaotic incident response, subjective technical-debt prioritization, documentation debt " +
+      "— rather than only restating that Cadre helps engineering ship faster. Does not present " +
+      "any named agent or product as something Cadre sells, and attaches no metric or timeline " +
+      "to any challenge.",
+  },
+  {
     id: "case-studies",
     intent: "Prospect wants proof. Every figure must be one Cadre actually published.",
     turns: ["Do you have any case studies or examples of results?"],

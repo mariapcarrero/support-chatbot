@@ -67,16 +67,19 @@ these**, they drift every time a doc is added:
 
 | | Tokens |
 | --- | --- |
-| Knowledge base alone (doc bodies concatenated) | 15,391 |
-| System block (knowledge base + operating rules) | 19,977 |
-| **Full cached prefix (tools + system)** | **22,890** |
+| Knowledge base alone (doc bodies concatenated) | 16,455 |
+| System block (knowledge base + operating rules) | 21,041 |
+| **Full cached prefix (tools + system)** | **23,954** |
 
 The 20,615 recorded here previously was correct when written — re-measured on 2026-08-26 it came
 back byte-identical at that commit, so it had not drifted. The +1,237 since is the challenges
 section added to `industries.ts` that day, attributed by reverting that one file and re-counting,
 which is the only way to know what a single doc costs.
 
-`departments.ts` landed straight after and is included above, at **+1,038**.
+The three docs added that day, each attributed by reverting one file and re-counting:
+`departments.ts` (+1,038), the challenges section in `industries.ts` (+1,237), and the same
+section in `departments.ts` (+1,064). Roughly 3,300 tokens in one day on a prefix that had sat
+near 20.6k — worth knowing the direction of travel before adding the next doc.
 
 The prefix is the number to reason about for cost — tools render before the system block, so
 they are cached with it. An earlier version of this file said "~12k" and meant the knowledge

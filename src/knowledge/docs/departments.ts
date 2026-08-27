@@ -46,13 +46,56 @@ single biggest factor in what an engagement costs. So which departments someone 
 a genuinely useful thing to learn early — it shapes both the roadmap and the price. Ask it as a
 scoping question, not as a qualifying one, and never quote a figure off the back of the answer.
 
+### The challenges each department page names
+
+Every department page publishes four challenges under a heading reading "Are these ... challenges
+familiar?". These are the symptoms Cadre says that function recognizes, and they are the best
+answer to "what would you actually do for my team?" — lead with the challenges, not with a
+restatement of the value proposition.
+
+They are **published symptoms, not claims that Cadre has fixed them for a named client.** Do not
+attach a metric, a timeline, or a percentage to one. The case-studies topic is the only place
+published results live.
+
+- **Sales** — manual prospecting limits volume (research and outreach consuming selling time);
+  reactive lead qualification (hours lost on unqualified leads); slow quote turnaround (proposals
+  taking days of back-and-forth while prospects go cold); pipeline maintenance overhead (updating
+  the CRM and chasing status instead of advancing deals).
+- **Marketing** — content creation bottleneck (volume forcing a choice between speed and
+  quality); slow performance optimization (campaign analysis after the fact rather than while it
+  runs); generic messaging at scale (personalization needing manual segmentation most teams
+  cannot resource); sequential creative testing (one variation at a time slowing learning).
+- **Operations** — manual coordination bottlenecks (email threads and meetings to coordinate
+  simple tasks); scattered process knowledge (SOPs living in individual heads and outdated docs);
+  request routing chaos (tasks falling through cracks because routing depends on who remembers to
+  forward); status tracking overhead.
+- **Finance** — month-end close marathon (manual reconciliation consuming days and delaying
+  reporting); static forecasting (spreadsheet models going stale the moment they are shared);
+  expense approval delays; reactive variance analysis (budget issues surfacing only after they
+  have compounded).
+- **Legal** — contract review backlog (deal velocity limited by review speed, frustrating sales);
+  time-intensive legal research (hours finding precedents and clause language); manual compliance
+  monitoring (tracking regulatory changes through spreadsheets); bottlenecked legal expertise
+  (routine questions consuming partner time because knowledge is not self-service).
+- **Technology** — code review bottlenecks (pull requests sitting while shipping velocity slows);
+  chaotic incident response (manual coordination relying on who remembers the runbook); subjective
+  debt prioritization (opinions rather than data on complexity and business impact); documentation
+  debt (code shipping without docs, slowing onboarding).
+- **Customer success** — reactive churn prevention (at-risk accounts discovered only after they
+  disengage or give notice); manual health monitoring (hours of checking that still misses early
+  warning signs in usage data); communication that does not scale (personalized outreach capping
+  book size); inconsistent onboarding (adoption gaps delaying time-to-value).
+- **Executive leadership** — siloed business intelligence (decisions made on incomplete pictures
+  because information sits in departmental systems); backward-looking reports (last week's
+  numbers, not what is happening now); manual strategic analysis (days of scenario modeling);
+  meeting-heavy alignment (status meetings consuming time better spent deciding).
+
 ### Answering "what would you actually do for my team?"
 
-Each page describes the same shape: a handful of concrete workflow problems that function
-recognises, and AI applied to those specific workflows. The published problems are things like
-manual coordination and scattered process knowledge in operations, code review bottlenecks and
-documentation debt in technology, content bottlenecks and slow performance optimization in
-marketing.
+Each page describes the same shape: the four workflow problems listed above, and AI applied to
+those specific workflows. Name the ones that belong to the asker's function — a prospect who
+hears their own month-end close or contract review backlog described back to them is being told
+something more useful than that Cadre works with finance.
 
 You may describe that shape and the value proposition above. **Do not name specific tools, agents,
 or products as things Cadre sells**, and do not attach a metric, a timeline, or a percentage
@@ -66,6 +109,9 @@ work, knowledge trapped in documents or a few people's heads, and someone who ca
 process change. Never claim experience with a function that is not listed above.
 `.trim(),
   sources: [
+    // The challenges section is condensed from the four-item "Are these ... challenges
+    // familiar?" block each sub-page publishes, fetched 2026-08-26. The value-prop lines were
+    // checked against the same pages the same day.
     { url: "https://www.cadreai.com/departments", checkedOn: "2026-08-26" },
     { url: "https://www.cadreai.com/departments/customer-success", checkedOn: "2026-08-26" },
     { url: "https://www.cadreai.com/departments/executive-leadership", checkedOn: "2026-08-26" },
